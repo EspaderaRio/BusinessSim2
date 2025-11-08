@@ -3857,9 +3857,637 @@
         saveGame();
       }
     }
+       function renderStaffTab(container) {
+      container.innerHTML = `
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">👥 Available Staff</h3>
+          <div id="available-staff"></div>
+        </div>
+        
+        <div>
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">🏆 Your Team (${gameState.staff.length})</h3>
+          <div id="hired-staff"></div>
+        </div>
+      `;
+
+      renderAvailableStaff();
+      renderHiredStaff();
+    }
+
+    function renderResearchTab(container) {
+      container.innerHTML = `
+        ${gameState.aiAdvisor.enabled ? renderAIAdvisor() : ''}
+        ${gameState.quantumComputer.enabled ? renderQuantumComputer() : ''}
+        ${gameState.blockchainNetwork.enabled ? renderBlockchainNetwork() : ''}
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">🔬 Available Research</h3>
+          <div id="available-research"></div>
+        </div>
+        
+        <div>
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">⚗️ Active Projects</h3>
+          <div id="active-research"></div>
+        </div>
+      `;
+
+      renderAvailableResearch();
+      renderActiveResearch();
+    }
+
+    function renderPortfolioTab(container) {
+      const totalNetWorth = calculateNetWorth();
+      const totalIncome = calculateTotalIncome();
+      
+      container.innerHTML = `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">💼 Portfolio Overview</div>
+            <div class="card-badge">Net Worth: $${formatNumber(totalNetWorth)}</div>
+          </div>
+          <div class="card-info">
+            💰 Liquid Cash: $${formatNumber(gameState.cash)}<br>
+            📊 Total Income: $${formatNumber(totalIncome)}/sec<br>
+            🏢 Business Value: $${formatNumber(calculateBusinessValue())}<br>
+            🏠 Property Value: $${formatNumber(calculatePropertyValue())}<br>
+            📈 Investment Value: $${formatNumber(calculateInvestmentValue())}
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <h4>📊 Performance Chart</h4>
+          <div class="chart">
+            <div class="chart-line"></div>
+          </div>
+        </div>
+        
+        <div class="leaderboard">
+          <h4>🏆 Global Leaderboard</h4>
+          <div id="leaderboard-content"></div>
+        </div>
+      `;
+
+      renderLeaderboard();
+    }
+
+    // Missing render functions
+    function renderAvailableStaff() {
+      const container = document.getElementById('available-staff');
+      container.innerHTML = '';
+      
+      STAFF_TYPES.forEach(staffType => {
+        const hiredCount = gameState.staff.filter(s => s.staff_type === staffType.id).length;
+        const cost = Math.floor(staffType.cost * Math.pow(1.2, hiredCount));
+        
+        const div = document.createElement('div');
+        div.className = 'card staff-card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${staffType.icon} ${staffType.name}</div>
+            <div class="card-badge">Hired: ${hiredCount}</div>
+          </div>
+          <div class="card-info">
+            💵 Cost: $${formatNumber(cost)}<br>
+            ⚡ Efficiency: ${staffType.efficiency}x<br>
+            🎯 Specialty: ${staffType.specialty}<br>
+            😊 Base Happiness: ${staffType.happiness}%
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="hireStaff('${staffType.id}')"
+              ${gameState.cash < cost ? 'disabled' : ''}>
+              Hire
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderHiredStaff() {
+      const container = document.getElementById('hired-staff');
+      
+      if (gameState.staff.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <div>No staff hired yet.<br>Build your team!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      gameState.staff.forEach(staff => {
+        const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
+        const assignedBusiness = gameState.entities.find(e => e.id === staff.assigned_business);
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${staffType.icon} ${staff.name}</div>
+            <div class="card-badge">Lv.${staff.level}</div>
+          </div>
+          <div class="card-info">
+            😊 Happiness: ${Math.floor(staff.happiness)}%<br>
+            💼 Assigned: ${assignedBusiness ? assignedBusiness.name : 'Unassigned'}<br>
+            💰 Salary: $${formatNumber(staff.salary)}/month<br>
+            ⚡ Performance: ${(staff.happiness * staffType.efficiency / 100).toFixed(1)}x
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-warning" onclick="trainStaff('${staff.id}')">
+              📚 Train
+            </button>
+            <button class="btn btn-primary" onclick="assignStaff('${staff.id}')">
+              📋 Assign
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderAvailableResearch() {
+      const container = document.getElementById('available-research');
+      container.innerHTML = '';
+      
+      RESEARCH_PROJECTS.forEach(project => {
+        const isCompleted = gameState.research.some(r => r.project_id === project.id && r.status === 'completed');
+        const isInProgress = gameState.research.some(r => r.project_id === project.id && r.status === 'in_progress');
+        
+        if (isCompleted) return;
+        
+        const div = document.createElement('div');
+        div.className = 'card research-card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${project.icon} ${project.name}</div>
+            <div class="card-badge">${project.category}</div>
+          </div>
+          <div class="card-info">
+            💵 Cost: $${formatNumber(project.cost)}<br>
+            ⏱️ Duration: ${Math.floor(project.duration / 60)} minutes<br>
+            🎯 Effect: ${project.effect}<br>
+            📊 Category: ${project.category}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="startResearch('${project.id}')"
+              ${gameState.cash < project.cost || isInProgress ? 'disabled' : ''}>
+              ${isInProgress ? 'In Progress...' : 'Start Research'}
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderActiveResearch() {
+      const container = document.getElementById('active-research');
+      const activeProjects = gameState.research.filter(r => r.status === 'in_progress');
+      
+      if (activeProjects.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔬</div>
+            <div>No active research projects.<br>Start innovating!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      activeProjects.forEach(research => {
+        const project = RESEARCH_PROJECTS.find(p => p.id === research.project_id);
+        const elapsed = Date.now() - research.started_at;
+        const progress = Math.min(100, (elapsed / research.duration) * 100);
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${project.icon} ${project.name}</div>
+            <div class="card-badge">${progress.toFixed(0)}%</div>
+          </div>
+          <div class="card-info">
+            ⏱️ Time Remaining: ${Math.max(0, Math.floor((research.duration - elapsed) / 60000))} minutes<br>
+            🎯 Effect: ${project.effect}
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderAIAdvisor() {
+      return `
+        <div class="ai-advisor">
+          <div class="card-header">
+            <div class="card-title">🤖 AI Advisor</div>
+            <div class="card-badge">Active</div>
+          </div>
+          <div class="advisor-message">
+            💡 ${gameState.aiAdvisor.suggestions[0] || 'Analyzing market conditions...'}
+          </div>
+          <div class="advisor-message">
+            📊 ${gameState.aiAdvisor.suggestions[1] || 'Calculating optimal strategies...'}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="getAIAdvice()">🔮 Get Advice</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuantumComputer() {
+      return `
+        <div class="quantum-computer">
+          <div class="card-header">
+            <div class="card-title">⚛️ Quantum Computer</div>
+            <div class="card-badge">Online</div>
+          </div>
+          <div class="card-info">
+            🔮 Processing Power: ${Math.floor(Math.random() * 1000)} Qubits<br>
+            ❄️ Temperature: ${(Math.random() * 0.1).toFixed(3)}K<br>
+            ⚡ Tasks Running: ${gameState.quantumComputer.processing.length}
+          </div>
+          ${renderQuantumParticles()}
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="runQuantumTask('optimization')">⚡ Optimize</button>
+            <button class="btn btn-success" onclick="runQuantumTask('prediction')">🔮 Predict</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuantumParticles() {
+      let particles = '';
+      for (let i = 0; i < 10; i++) {
+        particles += `<div class="quantum-particle" style="top: ${Math.random() * 80}%; left: ${Math.random() * 80}%; animation-delay: ${Math.random() * 3}s;"></div>`;
+      }
+      return particles;
+    }
+
+    function renderBlockchainNetwork() {
+      return `
+        <div class="blockchain-network">
+          <div class="card-header">
+            <div class="card-title">⛓️ Blockchain Network</div>
+            <div class="card-badge">${gameState.blockchainNetwork.blocks.length} Blocks</div>
+          </div>
+          <div class="card-info">
+            Latest blocks in the chain:
+          </div>
+          ${gameState.blockchainNetwork.blocks.slice(-3).map(block => `
+            <div class="block">
+              Block #${block.id} | Hash: ${block.hash.substring(0, 8)}... | Reward: $${block.reward}
+            </div>
+          `).join('')}
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="mineBlock()">⛏️ Mine Block</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLeaderboard() {
+      const container = document.getElementById('leaderboard-content');
+      const leaderboard = [
+        { name: 'You', netWorth: calculateNetWorth(), rank: 1 },
+        ...gameState.competitors.map((comp, index) => ({
+          name: comp.name,
+          netWorth: comp.netWorth,
+          rank: index + 2
+        }))
+      ].sort((a, b) => b.netWorth - a.netWorth);
+
+      container.innerHTML = '';
+      leaderboard.slice(0, 10).forEach((player, index) => {
+        const div = document.createElement('div');
+        div.className = 'leaderboard-item';
+        div.innerHTML = `
+          <div>
+            <span style="font-weight: bold;">#${index + 1}</span>
+            ${player.name === 'You' ? '👑' : ''} ${player.name}
+          </div>
+          <div>$${formatNumber(player.netWorth)}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Calculation functions
+    function calculateNetWorth() {
+      let netWorth = gameState.cash;
+      
+      // Add business values
+      netWorth += calculateBusinessValue();
+      
+      // Add property values
+      netWorth += calculatePropertyValue();
+      
+      // Add investment values
+      netWorth += calculateInvestmentValue();
+      
+      return netWorth;
+    }
+
+    function calculateBusinessValue() {
+      return gameState.entities
+        .filter(e => e.entity_type === 'business' && e.owner_type === 'player')
+        .reduce((sum, business) => sum + (business.market_value || business.cost || 0), 0);
+    }
+
+    function calculatePropertyValue() {
+      return gameState.properties.reduce((sum, property) => sum + (property.market_value || 0), 0);
+    }
+
+    function calculateInvestmentValue() {
+      let total = 0;
+      
+      // Stock values
+      gameState.stocks.forEach(stock => {
+        const company = STOCK_COMPANIES.find(c => c.id === stock.company_id);
+        if (company) {
+          total += stock.shares * company.currentPrice;
+        }
+      });
+      
+      // Crypto values
+      gameState.crypto.forEach(crypto => {
+        const currency = CRYPTOCURRENCIES.find(c => c.id === crypto.crypto_id);
+        if (currency) {
+          total += crypto.amount * currency.currentPrice;
+        }
+      });
+      
+      return total;
+    }
+
+    function calculateTotalIncome() {
+      let totalIncome = 0;
+      
+      // Business income
+      gameState.entities.forEach(entity => {
+        if (entity.entity_type === 'business' && entity.owner_type === 'player') {
+          totalIncome += entity.revenue_per_tick || 0;
+        }
+      });
+      
+      // Property income
+      gameState.properties.forEach(property => {
+        totalIncome += (property.monthly_rent || 0) / (30 * 24 * 3600);
+      });
+      
+      return totalIncome;
+    }
+
+    // Staff management functions
+    function hireStaff(staffTypeId) {
+      const staffType = STAFF_TYPES.find(t => t.id === staffTypeId);
+      const hiredCount = gameState.staff.filter(s => s.staff_type === staffTypeId).length;
+      const cost = Math.floor(staffType.cost * Math.pow(1.2, hiredCount));
+      
+      if (gameState.cash < cost) {
+        showToast('Not enough cash to hire staff!');
+        return;
+      }
+      
+      gameState.cash -= cost;
+      gameState.experience += 5;
+      
+      const staff = {
+        id: `staff_${staffTypeId}_${Date.now()}`,
+        name: `${staffType.name} ${hiredCount + 1}`,
+        staff_type: staffTypeId,
+        level: 1,
+        happiness: staffType.happiness,
+        salary: Math.floor(cost * 0.1),
+        assigned_business: null,
+        hired_at: new Date().toISOString()
+      };
+      
+      gameState.staff.push(staff);
+      saveGame();
+      showToast(`👥 Hired ${staff.name}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function trainStaff(staffId) {
+      const staff = gameState.staff.find(s => s.id === staffId);
+      if (!staff) return;
+      
+      const trainingCost = staff.level * 1000;
+      if (gameState.cash < trainingCost) {
+        showToast('Not enough cash for training!');
+        return;
+      }
+      
+      gameState.cash -= trainingCost;
+      staff.level++;
+      staff.happiness = Math.min(100, staff.happiness + 10);
+      
+      saveGame();
+      showToast(`📚 Trained ${staff.name} to level ${staff.level}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function assignStaff(staffId) {
+      const staff = gameState.staff.find(s => s.id === staffId);
+      if (!staff) return;
+      
+      const businesses = gameState.entities.filter(e => 
+        e.entity_type === 'business' && 
+        e.owner_type === 'player'
+      );
+      
+      if (businesses.length === 0) {
+        showToast('No businesses to assign staff to!');
+        return;
+      }
+      
+      // Simple assignment to first available business
+      const business = businesses[0];
+      staff.assigned_business = business.id;
+      
+      saveGame();
+      showToast(`📋 Assigned ${staff.name} to ${business.name}!`);
+      renderCurrentTab();
+    }
+
+    // Research functions
+    function startResearch(projectId) {
+      const project = RESEARCH_PROJECTS.find(p => p.id === projectId);
+      if (!project) return;
+      
+      if (gameState.cash < project.cost) {
+        showToast('Not enough cash for research!');
+        return;
+      }
+      
+      const existingResearch = gameState.research.find(r => r.project_id === projectId);
+      if (existingResearch) {
+        showToast('Research already started or completed!');
+        return;
+      }
+      
+      gameState.cash -= project.cost;
+      gameState.experience += 20;
+      
+      const research = {
+        id: `research_${projectId}_${Date.now()}`,
+        project_id: projectId,
+        status: 'in_progress',
+        started_at: Date.now(),
+        duration: project.duration * 1000, // Convert to milliseconds
+        progress: 0
+      };
+      
+      gameState.research.push(research);
+      saveGame();
+      showToast(`🔬 Started research: ${project.name}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    // Advanced feature functions
+    function getAIAdvice() {
+      if (!gameState.aiAdvisor.enabled) {
+        showToast('AI Advisor not available yet!');
+        return;
+      }
+      
+      generateAISuggestions();
+      showToast('🤖 AI Advisor updated with new insights!');
+      renderCurrentTab();
+    }
+
+    function runQuantumTask(taskType) {
+      if (!gameState.quantumComputer.enabled) {
+        showToast('Quantum Computer not available yet!');
+        return;
+      }
+      
+      const task = {
+        id: `quantum_${taskType}_${Date.now()}`,
+        type: taskType,
+        progress: 0,
+        started_at: Date.now()
+      };
+      
+      gameState.quantumComputer.processing.push(task);
+      showToast(`⚛️ Started quantum ${taskType} task!`);
+      renderCurrentTab();
+    }
+
+    function mineBlock() {
+      if (!gameState.blockchainNetwork.enabled) {
+        showToast('Blockchain Network not available yet!');
+        return;
+      }
+      
+      mineNewBlock();
+      showToast('⛓️ Mining new block...');
+      renderCurrentTab();
+    }
+
+    // Navigation functions for external pages
+    function navigateToPage(pageName) {
+      // For external navigation if needed
+      window.location.href = `${pageName}.html`;
+    }
+
+    function openInNewTab(url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // Enhanced error handling
+    function safeExecute(func, errorMessage = 'An error occurred') {
+      try {
+        return func();
+      } catch (error) {
+        console.error(errorMessage, error);
+        showToast(errorMessage);
+        return null;
+      }
+    }
+
+    // Enhanced save/load with error handling
+    function saveGame() {
+      safeExecute(() => {
+        const gameData = {
+          ...gameState,
+          lastSaved: Date.now(),
+          version: '1.0.0'
+        };
+        localStorage.setItem('ultimateBusinessEmpire', JSON.stringify(gameData));
+      }, 'Failed to save game');
+    }
+
+    function loadGame() {
+      safeExecute(() => {
+        const saved = localStorage.getItem('ultimateBusinessEmpire');
+        if (saved) {
+          const loadedState = JSON.parse(saved);
+          
+          // Validate loaded data
+          if (loadedState.version && loadedState.cash !== undefined) {
+            gameState = { ...gameState, ...loadedState };
+            gameState.lastTick = Date.now();
+            
+            // Calculate offline progress
+            const offlineTime = Date.now() - (loadedState.lastTick || Date.now());
+            if (offlineTime > 60000) {
+              calculateOfflineProgress(offlineTime);
+            }
+            
+            return true;
+          }
+        }
+        return false;
+      }, 'Failed to load game');
+    }
+
+    // Enhanced initialization with error handling
+    function init() {
+      safeExecute(() => {
+        loadGame();
+        initializeAllSystems();
+        renderCityGrid();
+        renderCurrentTab();
+        startGameLoop();
+        startAdvancedSystems();
+        showWelcomeMessage();
+      }, 'Failed to initialize game');
+    }
 
     // Initialize the game when page loads
     window.addEventListener('DOMContentLoaded', init);
+    
+    // Handle page visibility changes for offline progress
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        saveGame();
+      } else {
+        // Player returned, check for offline progress
+        const lastSaved = gameState.lastSaved || Date.now();
+        const offlineTime = Date.now() - lastSaved;
+        if (offlineTime > 300000) { // 5 minutes
+          calculateOfflineProgress(offlineTime);
+        }
+      }
+    });
+
+    // Auto-save every 30 seconds
+    setInterval(() => {
+      saveGame();
+    }, 30000);
   </script>
+  <script>
+  window.onload = init;
+</script>
 </body>
 </html>
