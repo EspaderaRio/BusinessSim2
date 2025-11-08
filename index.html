@@ -2563,14 +2563,19 @@
     }
 
     // Enhanced UI interaction functions
+ // Enhanced UI interaction functions
     function switchTab(tabName) {
       gameState.currentTab = tabName;
       
       // Update nav buttons
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`nav-${tabName}`).classList.add('active');
+      const activeBtn = document.getElementById(`nav-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+      }
       
       renderCurrentTab();
+      saveGame();
     }
 
     function switchCity(cityId) {
@@ -2583,6 +2588,40 @@
       showToast(`Switched to ${city.name} (${city.multiplier}x multiplier)`);
     }
 
+    function showQuickActions() {
+      showModal('⚡ Quick Actions', `
+        <div class="card-actions" style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn btn-success" onclick="quickCollectAll()">💰 Collect All Revenue</button>
+          <button class="btn btn-primary" onclick="quickUpgradeAll()">⬆️ Upgrade All Businesses</button>
+          <button class="btn btn-warning" onclick="quickHireStaff()">👥 Quick Hire Staff</button>
+          <button class="btn btn-crypto" onclick="quickInvest()">📈 Quick Invest</button>
+          <button class="btn btn-secondary" onclick="closeModal()">❌ Cancel</button>
+        </div>
+      `);
+    }
+
+    // Make all functions globally accessible for onclick handlers
+    window.switchTab = switchTab;
+    window.switchCity = switchCity;
+    window.showQuickActions = showQuickActions;
+    window.purchaseBusiness = purchaseBusiness;
+    window.upgradeBusiness = upgradeBusiness;
+    window.purchaseProperty = purchaseProperty;
+    window.buyStock = buyStock;
+    window.sellStock = sellStock;
+    window.buyCrypto = buyCrypto;
+    window.sellCrypto = sellCrypto;
+    window.stakeCrypto = stakeCrypto;
+    window.hireStaff = hireStaff;
+    window.trainStaff = trainStaff;
+    window.assignStaff = assignStaff;
+    window.startResearch = startResearch;
+    window.getAIAdvice = getAIAdvice;
+    window.runQuantumTask = runQuantumTask;
+    window.mineBlock = mineBlock;
+    window.playMiniGame = playMiniGame;
+    window.closeModal = closeModal;
+   
     function renderCityGrid() {
       const container = document.getElementById('city-grid');
       container.innerHTML = '';
@@ -3754,16 +3793,9 @@
       if (myBusinesses.length >= 100 && !gameState.achievements.includes('business_mogul')) {
         gameState.achievements.push('business_mogul');
         newAchievements.push('🏢 Business Mogul - 100 Businesses!');
-      }
-
-      // Wealth achievements
-      if (gameState.cash >= 1000000 && !gameState.achievements.includes('millionaire')) {
-        gameState.achievements.push('millionaire');
-        newAchievements.push('💰 Millionaire Status!');
-      }
-      if (gameState.cash >= 1
-
-            // Wealth achievements
+      } 
+     
+        // Wealth achievements
       if (gameState.cash >= 1000000 && !gameState.achievements.includes('millionaire')) {
         gameState.achievements.push('millionaire');
         newAchievements.push('💰 Millionaire Status!');
