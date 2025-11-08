@@ -3062,7 +3062,155 @@
       }
       closeModal();
     }
+    // Initialize market conditions if not present
+    function initializeMarketConditions() {
+      if (!gameState.marketConditions) {
+        gameState.marketConditions = {
+          economy: 'normal',
+          interest_rate: 0.05,
+          inflation: 0.02,
+          unemployment: 0.04,
+          consumer_confidence: 0.7,
+          last_update: Date.now()
+        };
+      }
+      
+      // Ensure economy is a string
+      if (typeof gameState.marketConditions.economy !== 'string') {
+        gameState.marketConditions.economy = 'normal';
+      }
+    }
 
+    // Update the purchase modal with proper error handling
+    function showPurchaseModal(templateId) {
+      // Initialize market conditions if needed
+      initializeMarketConditions();
+      
+      const template = BUSINESS_TEMPLATES.find(t => t.id === templateId);
+      const city = CITIES.find(c => c.id === gameState.currentCity);
+      const ownedCount = gameState.entities.filter(e => 
+        e.entity_type === 'business' && 
+        e.business_type === templateId && 
+        e.city === gameState.currentCity &&
+        e.owner_type === 'player'
+      ).length;
+      
+      let cost = Math.floor(template.baseCost * city.multiplier * Math.pow(1.15, ownedCount));
+      let revenue = Math.floor(template.baseRevenue * city.multiplier * Math.pow(1.15, ownedCount));
+
+      // Apply market conditions with safe access
+      const economy = gameState.marketConditions.economy || 'normal';
+      if (economy === 'boom') {
+        revenue *= 1.3;
+      } else if (economy === 'recession') {
+        revenue *= 0.7;
+        cost *= 0.8;
+      }
+
+      // Apply prestige bonuses
+      if (gameState.prestigeLevel > 0) {
+        cost = Math.floor(cost * (1 - gameState.prestigeLevel * 0.05));
+        revenue = Math.floor(revenue * (1 + gameState.prestigeLevel * 0.1));
+      }
+
+      showModal(`🏢 Purchase ${template.name}`, `
+        <div class="card-info">
+          <strong>Business Details:</strong><br>
+          💵 Cost: $${formatNumber(cost)}<br>
+          📊 Revenue: $${formatNumber(revenue)}/sec<br>
+          🌍 City Multiplier: ${city.multiplier}x<br>
+          👥 Staff Slots: ${template.staffSlots}<br>
+          📦 Required Supplies: ${template.supplies.join(', ')}<br>
+          🏆 You Own: ${ownedCount} in ${city.name}<br><br>
+          
+          <strong>Market Conditions:</strong><br>
+          📈 Economy: ${economy.toUpperCase()}<br>
+          ${gameState.prestigeLevel > 0 ? `⭐ Prestige Bonus: -${gameState.prestigeLevel * 5}% cost, +${gameState.prestigeLevel * 10}% revenue<br>` : ''}
+          
+          ${gameState.cash < cost ? `<br><span style="color: #f56565;">❌ Need $${formatNumber(cost - gameState.cash)} more cash!</span>` : ''}
+        </div>
+        
+        <div class="card-actions" style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="purchaseBusiness('${templateId}'); closeModal();" 
+            ${gameState.cash < cost ? 'disabled' : ''}>
+            ${gameState.cash < cost ? 'Insufficient Funds' : 'Purchase Business'}
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    // Update the initialization function to include market conditions
+    function initializeAllSystems() {
+      initializeMarketConditions();
+      
+      // Initialize other missing properties
+      if (!gameState.entities) gameState.entities = [];
+      if (!gameState.properties) gameState.properties = [];
+      if (!gameState.stocks) gameState.stocks = [];
+      if (!gameState.crypto) gameState.crypto = [];
+      if (!gameState.staff) gameState.staff = [];
+      if (!gameState.research) gameState.research = [];
+      if (!gameState.achievements) gameState.achievements = [];
+      if (!gameState.franchises) gameState.franchises = [];
+      if (!gameState.competitors) gameState.competitors = [];
+      
+      // Initialize advanced systems
+      if (!gameState.aiAdvisor) {
+        gameState.aiAdvisor = {
+          enabled: false,
+          suggestions: [],
+          last_update: Date.now()
+        };
+      }
+      
+      if (!gameState.quantumComputer) {
+        gameState.quantumComputer = {
+          enabled: false,
+          processing: [],
+          qubits: 0
+        };
+      }
+      
+      if (!gameState.blockchainNetwork) {
+        gameState.blockchainNetwork = {
+          enabled: false,
+          blocks: [],
+          mining_power: 0
+        };
+      }
+      
+      if (!gameState.spaceAssets) gameState.spaceAssets = [];
+      if (!gameState.timeMachine) {
+        gameState.timeMachine = {
+          enabled: false,
+          fuel: 0,
+          destinations: []
+        };
+      }
+      
+      if (!gameState.multiverseHub) {
+        gameState.multiverseHub = {
+          enabled: false,
+          universes: [],
+          energy: 0
+        };
+      }
+      
+      // Initialize prestige system
+      if (gameState.prestigeLevel === undefined) gameState.prestigeLevel = 0;
+      if (gameState.prestigePoints === undefined) gameState.prestigePoints = 0;
+      
+      // Initialize player stats
+      if (gameState.playerLevel === undefined) gameState.playerLevel = 1;
+      if (gameState.experience === undefined) gameState.experience = 0;
+      if (gameState.reputation === undefined) gameState.reputation = 0;
+      
+      console.log('All systems initialized successfully');
+    }
+
+    // Make the initialization function globally accessible
+    window.initializeMarketConditions = initializeMarketConditions;
     // Make all functions globally accessible
     window.showPurchaseModal = showPurchaseModal;
     window.showStockTrading = showStockTrading;
