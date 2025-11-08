@@ -2600,12 +2600,495 @@
       `);
     }
 
+       // Business upgrade function
+    function upgradeBusiness(businessId) {
+      const business = gameState.entities.find(e => e.id === businessId);
+      if (!business) {
+        showToast('Business not found!');
+        return;
+      }
+      
+      if (gameState.cash < business.upgrade_cost) {
+        showToast('Not enough cash to upgrade!');
+        return;
+      }
+      
+      gameState.cash -= business.upgrade_cost;
+      business.level++;
+      business.revenue_per_tick = Math.floor(business.revenue_per_tick * 1.5);
+      business.upgrade_cost = Math.floor(business.upgrade_cost * 1.8);
+      business.market_value = Math.floor(business.market_value * 1.3);
+      gameState.experience += 15;
+      
+      saveGame();
+      showToast(`⬆️ Upgraded ${business.name} to level ${business.level}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    // Staff management functions
+    function manageStaff(businessId) {
+      const business = gameState.entities.find(e => e.id === businessId);
+      if (!business) return;
+      
+      const assignedStaff = gameState.staff.filter(s => s.assigned_business === businessId);
+      const availableStaff = gameState.staff.filter(s => !s.assigned_business);
+      
+      showModal(`👥 Manage Staff - ${business.name}`, `
+        <div style="margin-bottom: 15px;">
+          <h4>Currently Assigned (${assignedStaff.length})</h4>
+          ${assignedStaff.map(staff => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f7fafc; border-radius: 8px; margin-bottom: 5px;">
+              <span>${staff.name} (Lv.${staff.level})</span>
+              <button class="btn btn-secondary" onclick="unassignStaff('${staff.id}')">Remove</button>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div>
+          <h4>Available Staff (${availableStaff.length})</h4>
+          ${availableStaff.map(staff => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f7fafc; border-radius: 8px; margin-bottom: 5px;">
+              <span>${staff.name} (Lv.${staff.level})</span>
+              <button class="btn btn-primary" onclick="assignStaffToBusiness('${staff.id}', '${businessId}')">Assign</button>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div style="margin-top: 15px;">
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `);
+    }
+
+    function assignStaffToBusiness(staffId, businessId) {
+      const staff = gameState.staff.find(s => s.id === staffId);
+      if (staff) {
+        staff.assigned_business = businessId;
+        saveGame();
+        showToast(`📋 Assigned ${staff.name} to business!`);
+        closeModal();
+        renderCurrentTab();
+      }
+    }
+
+    function unassignStaff(staffId) {
+      const staff = gameState.staff.find(s => s.id === staffId);
+      if (staff) {
+        staff.assigned_business = null;
+        saveGame();
+        showToast(`📋 Unassigned ${staff.name}!`);
+        closeModal();
+        renderCurrentTab();
+      }
+    }
+
+    function manageFranchise(businessId) {
+      const business = gameState.entities.find(e => e.id === businessId);
+      if (!business) return;
+      
+      const franchiseCost = business.market_value * 2;
+      
+      showModal(`🏪 Franchise - ${business.name}`, `
+        <div class="card-info">
+          Create a franchise of this business in other cities!<br><br>
+          💵 Franchise Cost: $${formatNumber(franchiseCost)}<br>
+          📊 Expected Revenue: $${formatNumber(business.revenue_per_tick * 0.5)}/sec<br>
+          🌍 Available Cities: ${CITIES.filter(c => c.id !== gameState.currentCity && gameState.playerLevel >= c.unlockLevel).length}
+        </div>
+        
+        <div class="card-actions" style="margin-top: 15px;">
+          <button class="btn btn-primary" onclick="createFranchise('${businessId}')" 
+            ${gameState.cash < franchiseCost ? 'disabled' : ''}>
+            Create Franchise
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    function createFranchise(businessId) {
+      const business = gameState.entities.find(e => e.id === businessId);
+      if (!business) return;
+      
+      const franchiseCost = business.market_value * 2;
+      if (gameState.cash < franchiseCost) {
+        showToast('Not enough cash for franchise!');
+        return;
+      }
+      
+      const availableCities = CITIES.filter(c => 
+        c.id !== gameState.currentCity && 
+        gameState.playerLevel >= c.unlockLevel &&
+        !gameState.franchises.some(f => f.business_id === businessId && f.city === c.id)
+      );
+      
+      if (availableCities.length === 0) {
+        showToast('No available cities for franchise!');
+        return;
+      }
+      
+      const targetCity = availableCities[0];
+      
+      gameState.cash -= franchiseCost;
+      gameState.franchises.push({
+        id: `franchise_${businessId}_${targetCity.id}_${Date.now()}`,
+        business_id: businessId,
+        city: targetCity.id,
+        revenue: business.revenue_per_tick * 0.5 * targetCity.multiplier,
+        created_at: Date.now()
+      });
+      
+      saveGame();
+      showToast(`🏪 Created franchise in ${targetCity.name}!`);
+      closeModal();
+      renderCurrentTab();
+      updateStats();
+    }
+
+    // Property management functions
+    function renovateProperty(propertyId) {
+      const property = gameState.properties.find(p => p.id === propertyId);
+      if (!property) return;
+      
+      const renovationCost = Math.floor(property.market_value * 0.2);
+      
+      if (gameState.cash < renovationCost) {
+        showToast('Not enough cash for renovation!');
+        return;
+      }
+      
+      gameState.cash -= renovationCost;
+      property.condition = Math.min(1.0, property.condition + 0.3);
+      property.monthly_rent = Math.floor(property.monthly_rent * 1.2);
+      property.market_value = Math.floor(property.market_value * 1.1);
+      
+      saveGame();
+      showToast(`🔧 Renovated property! Condition: ${(property.condition * 100).toFixed(0)}%`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function manageProperty(propertyId) {
+      const property = gameState.properties.find(p => p.id === propertyId);
+      if (!property) return;
+      
+      showModal(`🏠 Manage Property`, `
+        <div class="card-info">
+          🏠 Monthly Rent: $${formatNumber(property.monthly_rent)}<br>
+          🔧 Condition: ${(property.condition * 100).toFixed(0)}%<br>
+          👥 Occupancy: ${property.occupancy.toFixed(0)}%<br>
+          💰 Market Value: $${formatNumber(property.market_value)}
+        </div>
+        
+        <div class="card-actions" style="margin-top: 15px;">
+          <button class="btn btn-warning" onclick="renovateProperty('${propertyId}'); closeModal();">
+            🔧 Renovate ($${formatNumber(Math.floor(property.market_value * 0.2))})
+          </button>
+          <button class="btn btn-primary" onclick="advertiseProperty('${propertyId}'); closeModal();">
+            📢 Advertise ($${formatNumber(Math.floor(property.monthly_rent * 0.5))})
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `);
+    }
+
+    function advertiseProperty(propertyId) {
+      const property = gameState.properties.find(p => p.id === propertyId);
+      if (!property) return;
+      
+      const advertisingCost = Math.floor(property.monthly_rent * 0.5);
+      
+      if (gameState.cash < advertisingCost) {
+        showToast('Not enough cash for advertising!');
+        return;
+      }
+      
+      gameState.cash -= advertisingCost;
+      property.occupancy = Math.min(100, property.occupancy + 15);
+      
+      saveGame();
+      showToast(`📢 Advertised property! Occupancy: ${property.occupancy.toFixed(0)}%`);
+      renderCurrentTab();
+      updateStats();
+    }
+    // Purchase modal function
+    function showPurchaseModal(templateId) {
+      const template = BUSINESS_TEMPLATES.find(t => t.id === templateId);
+      const city = CITIES.find(c => c.id === gameState.currentCity);
+      const ownedCount = gameState.entities.filter(e => 
+        e.entity_type === 'business' && 
+        e.business_type === templateId && 
+        e.city === gameState.currentCity &&
+        e.owner_type === 'player'
+      ).length;
+      
+      let cost = Math.floor(template.baseCost * city.multiplier * Math.pow(1.15, ownedCount));
+      let revenue = Math.floor(template.baseRevenue * city.multiplier * Math.pow(1.15, ownedCount));
+
+      // Apply market conditions
+      if (gameState.marketConditions.economy === 'boom') {
+        revenue *= 1.3;
+      } else if (gameState.marketConditions.economy === 'recession') {
+        revenue *= 0.7;
+        cost *= 0.8;
+      }
+
+      // Apply prestige bonuses
+      if (gameState.prestigeLevel > 0) {
+        cost = Math.floor(cost * (1 - gameState.prestigeLevel * 0.05));
+        revenue = Math.floor(revenue * (1 + gameState.prestigeLevel * 0.1));
+      }
+
+      showModal(`🏢 Purchase ${template.name}`, `
+        <div class="card-info">
+          <strong>Business Details:</strong><br>
+          💵 Cost: $${formatNumber(cost)}<br>
+          📊 Revenue: $${formatNumber(revenue)}/sec<br>
+          🌍 City Multiplier: ${city.multiplier}x<br>
+          👥 Staff Slots: ${template.staffSlots}<br>
+          📦 Required Supplies: ${template.supplies.join(', ')}<br>
+          🏆 You Own: ${ownedCount} in ${city.name}<br><br>
+          
+          <strong>Market Conditions:</strong><br>
+          📈 Economy: ${gameState.marketConditions.economy.toUpperCase()}<br>
+          ${gameState.prestigeLevel > 0 ? `⭐ Prestige Bonus: -${gameState.prestigeLevel * 5}% cost, +${gameState.prestigeLevel * 10}% revenue<br>` : ''}
+          
+          ${gameState.cash < cost ? `<br><span style="color: #f56565;">❌ Need $${formatNumber(cost - gameState.cash)} more cash!</span>` : ''}
+        </div>
+        
+        <div class="card-actions" style="margin-top: 20px;">
+          <button class="btn btn-primary" onclick="purchaseBusiness('${templateId}'); closeModal();" 
+            ${gameState.cash < cost ? 'disabled' : ''}>
+            ${gameState.cash < cost ? 'Insufficient Funds' : 'Purchase Business'}
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    // Stock trading modal
+    function showStockTrading(stockId) {
+      const stock = STOCK_COMPANIES.find(s => s.id === stockId);
+      const owned = gameState.stocks.find(s => s.company_id === stockId);
+      const priceChange = stock.priceHistory.length > 1 ? 
+        ((stock.currentPrice - stock.priceHistory[stock.priceHistory.length - 2]) / stock.priceHistory[stock.priceHistory.length - 2] * 100) : 0;
+
+      showModal(`📊 Trade ${stock.symbol}`, `
+        <div class="card-info">
+          <strong>Stock Information:</strong><br>
+          💰 Current Price: $${formatNumber(stock.currentPrice)}<br>
+          📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
+          📊 Sector: ${stock.sector}<br>
+          📉 Volatility: ${(stock.volatility * 100).toFixed(0)}%<br>
+          💼 You Own: ${owned ? owned.shares : 0} shares<br>
+          💰 Portfolio Value: $${owned ? formatNumber(owned.shares * stock.currentPrice) : '0'}<br><br>
+          
+          <strong>Quick Trade:</strong>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+          <input type="number" id="trade-amount" placeholder="Shares" min="1" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <div style="display: flex; align-items: center; font-weight: bold;">
+            Total: $<span id="trade-total">0</span>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <button class="btn btn-success" onclick="executeTrade('${stockId}', 'buy')">📈 Buy</button>
+          <button class="btn btn-danger" onclick="executeTrade('${stockId}', 'sell')" 
+            ${!owned || owned.shares === 0 ? 'disabled' : ''}>📉 Sell</button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    // Crypto trading modal
+    function showCryptoTrading(cryptoId) {
+      const crypto = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
+      const owned = gameState.crypto.find(c => c.crypto_id === cryptoId);
+      const priceChange = crypto.priceHistory.length > 1 ? 
+        ((crypto.currentPrice - crypto.priceHistory[crypto.priceHistory.length - 2]) / crypto.priceHistory[crypto.priceHistory.length - 2] * 100) : 0;
+
+      showModal(`₿ Trade ${crypto.symbol}`, `
+        <div class="card-info">
+          <strong>Crypto Information:</strong><br>
+          💰 Current Price: $${formatNumber(crypto.currentPrice)}<br>
+          📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
+          📊 Volatility: ${(crypto.volatility * 100).toFixed(0)}%<br>
+          💎 You Own: ${owned ? owned.amount.toFixed(4) : 0} ${crypto.symbol}<br>
+          💰 Portfolio Value: $${owned ? formatNumber(owned.amount * crypto.currentPrice) : '0'}<br>
+          🎯 Staked: ${owned && owned.staked ? 'Yes' : 'No'}<br><br>
+          
+          <strong>Quick Trade:</strong>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+          <input type="number" id="crypto-trade-amount" placeholder="Amount" min="0.0001" step="0.0001" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <div style="display: flex; align-items: center; font-weight: bold;">
+            Total: $<span id="crypto-trade-total">0</span>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <button class="btn btn-success" onclick="executeCryptoTrade('${cryptoId}', 'buy')">📈 Buy</button>
+          <button class="btn btn-danger" onclick="executeCryptoTrade('${cryptoId}', 'sell')" 
+            ${!owned || owned.amount === 0 ? 'disabled' : ''}>📉 Sell</button>
+          <button class="btn btn-primary" onclick="stakeCrypto('${cryptoId}'); closeModal();" 
+            ${!owned || owned.amount === 0 ? 'disabled' : ''}>
+            🎯 ${owned && owned.staked ? 'Unstake' : 'Stake'}
+          </button>
+          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+      `);
+    }
+
+    // Execute trades
+    function executeTrade(stockId, action) {
+      const amountInput = document.getElementById('trade-amount');
+      if (!amountInput) return;
+      
+      const amount = parseInt(amountInput.value) || 0;
+      if (amount <= 0) {
+        showToast('Please enter a valid amount!');
+        return;
+      }
+      
+      if (action === 'buy') {
+        buyStock(stockId, amount);
+      } else {
+        sellStock(stockId, amount);
+      }
+      closeModal();
+    }
+
+    function executeCryptoTrade(cryptoId, action) {
+      const amountInput = document.getElementById('crypto-trade-amount');
+      if (!amountInput) return;
+      
+      const amount = parseFloat(amountInput.value) || 0;
+      if (amount <= 0) {
+        showToast('Please enter a valid amount!');
+        return;
+      }
+      
+      if (action === 'buy') {
+        buyCrypto(cryptoId, amount);
+      } else {
+        sellCrypto(cryptoId, amount);
+      }
+      closeModal();
+    }
+
+    // Quick action functions
+    function quickCollectAll() {
+      let totalCollected = 0;
+      
+      gameState.entities.forEach(entity => {
+        if (entity.entity_type === 'business' && entity.owner_type === 'player') {
+          const bonus = entity.revenue_per_tick * 60; // 1 minute worth
+          totalCollected += bonus;
+        }
+      });
+      
+      gameState.cash += totalCollected;
+      saveGame();
+      showToast(`💰 Collected $${formatNumber(totalCollected)}!`);
+      closeModal();
+      updateStats();
+    }
+
+    function quickUpgradeAll() {
+      let upgraded = 0;
+      let totalCost = 0;
+      
+      gameState.entities.forEach(entity => {
+        if (entity.entity_type === 'business' && entity.owner_type === 'player' && gameState.cash >= entity.upgrade_cost) {
+          gameState.cash -= entity.upgrade_cost;
+          totalCost += entity.upgrade_cost;
+          entity.level++;
+          entity.revenue_per_tick = Math.floor(entity.revenue_per_tick * 1.5);
+          entity.upgrade_cost = Math.floor(entity.upgrade_cost * 1.8);
+          entity.market_value = Math.floor(entity.market_value * 1.3);
+          upgraded++;
+        }
+      });
+      
+      if (upgraded > 0) {
+        gameState.experience += upgraded * 15;
+        saveGame();
+        showToast(`⬆️ Upgraded ${upgraded} businesses for $${formatNumber(totalCost)}!`);
+        renderCurrentTab();
+        updateStats();
+      } else {
+        showToast('No businesses can be upgraded right now!');
+      }
+      closeModal();
+    }
+
+    function quickHireStaff() {
+      const availableStaff = STAFF_TYPES.filter(staffType => {
+        const hiredCount = gameState.staff.filter(s => s.staff_type === staffType.id).length;
+        const cost = Math.floor(staffType.cost * Math.pow(1.2, hiredCount));
+        return gameState.cash >= cost;
+      });
+      
+      if (availableStaff.length > 0) {
+        const staffType = availableStaff[0];
+        hireStaff(staffType.id);
+        showToast(`👥 Quick hired ${staffType.name}!`);
+      } else {
+        showToast('No staff available to hire right now!');
+      }
+      closeModal();
+    }
+
+    function quickInvest() {
+      const investmentAmount = Math.floor(gameState.cash * 0.1); // 10% of cash
+      
+      if (investmentAmount < 1000) {
+        showToast('Need at least $1,000 to quick invest!');
+        closeModal();
+        return;
+      }
+      
+      // Invest in random stock
+      const randomStock = STOCK_COMPANIES[Math.floor(Math.random() * STOCK_COMPANIES.length)];
+      const shares = Math.floor(investmentAmount / randomStock.currentPrice);
+      
+      if (shares > 0) {
+        buyStock(randomStock.id, shares);
+        showToast(`📈 Quick invested $${formatNumber(shares * randomStock.currentPrice)} in ${randomStock.symbol}!`);
+      }
+      closeModal();
+    }
+
+    // Make all functions globally accessible
+    window.showPurchaseModal = showPurchaseModal;
+    window.showStockTrading = showStockTrading;
+    window.showCryptoTrading = showCryptoTrading;
+    window.executeTrade = executeTrade;
+    window.executeCryptoTrade = executeCryptoTrade;
+    window.quickCollectAll = quickCollectAll;
+    window.quickUpgradeAll = quickUpgradeAll;
+    window.quickHireStaff = quickHireStaff;
+    window.quickInvest = quickInvest;
+    // Add all the missing functions to global scope
+    window.upgradeBusiness = upgradeBusiness;
+    window.manageStaff = manageStaff;
+    window.manageFranchise = manageFranchise;
+    window.assignStaffToBusiness = assignStaffToBusiness;
+    window.unassignStaff = unassignStaff;
+    window.createFranchise = createFranchise;
+    window.renovateProperty = renovateProperty;
+    window.manageProperty = manageProperty;
+    window.advertiseProperty = advertiseProperty;
+
     // Make all functions globally accessible for onclick handlers
     window.switchTab = switchTab;
     window.switchCity = switchCity;
     window.showQuickActions = showQuickActions;
     window.purchaseBusiness = purchaseBusiness;
-    window.upgradeBusiness = upgradeBusiness;
     window.purchaseProperty = purchaseProperty;
     window.buyStock = buyStock;
     window.sellStock = sellStock;
