@@ -1,0 +1,3793 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultimate Business Empire</title>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    .mobile-container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 10px;
+      min-height: 100%;
+      position: relative;
+    }
+
+    .top-bar {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .game-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1a202c;
+      margin: 0 0 5px 0;
+      text-align: center;
+    }
+
+    .company-name {
+      font-size: 14px;
+      color: #667eea;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .stat-mini {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 10px 6px;
+      border-radius: 12px;
+      color: white;
+      text-align: center;
+      position: relative;
+    }
+
+    .stat-mini-label {
+      font-size: 9px;
+      opacity: 0.9;
+      margin-bottom: 2px;
+    }
+
+    .stat-mini-value {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .prestige-indicator {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #f6ad55;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .market-ticker {
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ff00;
+      padding: 8px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      animation: scroll-left 30s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% { transform: translate3d(100%, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    .weather-widget {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 15px;
+      color: white;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .city-selector {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .city-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 6px;
+    }
+
+    .city-card {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 10px;
+      position: relative;
+    }
+
+    .city-card.active {
+      background: #667eea;
+      color: white;
+      border-color: #5a67d8;
+      transform: scale(1.05);
+    }
+
+    .city-card:active {
+      transform: scale(0.95);
+    }
+
+    .city-emoji {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .city-development {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 7px;
+      background: #48bb78;
+      color: white;
+      border-radius: 4px;
+      padding: 1px 2px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid #e2e8f0;
+      padding: 8px;
+      z-index: 100;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 3px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-size: 9px;
+      color: #4a5568;
+      position: relative;
+    }
+
+    .nav-btn.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .nav-btn:active {
+      transform: scale(0.9);
+    }
+
+    .nav-icon {
+      font-size: 16px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      background: #f56565;
+      color: white;
+      border-radius: 50%;
+      width: 10px;
+      height: 10px;
+      font-size: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .content-area {
+      padding-bottom: 80px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80%;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      position: sticky;
+      top: 0;
+      background: white;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a202c;
+      margin: 0;
+      text-align: center;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: #f7fafc;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .card {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a202c;
+    }
+
+    .card-badge {
+      background: #667eea;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .card-info {
+      font-size: 13px;
+      color: #4a5568;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-success {
+      background: #48bb78;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #ed8936;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #f56565;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #4a5568;
+    }
+
+    .btn-prestige {
+      background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+      color: white;
+    }
+
+    .btn-crypto {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .loading-btn {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .investment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .investment-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      padding: 12px;
+      border-radius: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .investment-card:active {
+      transform: scale(0.95);
+    }
+
+    .investment-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .investment-name {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .investment-yield {
+      font-size: 9px;
+      opacity: 0.9;
+    }
+
+    .risk-indicator {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .risk-low { background: #48bb78; }
+    .risk-medium { background: #ed8936; }
+    .risk-high { background: #f56565; }
+
+    .market-indicator {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #718096;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a202c;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      animation: toastSlide 0.3s ease-out;
+      z-index: 2000;
+      max-width: 90%;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+    }
+
+    .floating-btn {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      z-index: 99;
+      transition: all 0.2s;
+    }
+
+    .floating-btn:active {
+      transform: scale(0.9);
+    }
+
+    .skill-tree {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .skill-node {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 15px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .skill-node.unlocked {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      border-color: #38a169;
+    }
+
+    .skill-node.available {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .staff-card {
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .staff-card.hired {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      border-color: #38a169;
+    }
+
+    .event-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      animation: eventPulse 2s infinite;
+    }
+
+    .loan-card {
+      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+      color: white;
+    }
+
+    .research-card {
+      background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+      color: white;
+    }
+
+    .competitor-card {
+      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+      color: white;
+    }
+
+    .property-card {
+      background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+      color: white;
+    }
+
+    .stock-card {
+      background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+      color: white;
+    }
+
+    .crypto-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .supply-card {
+      background: linear-gradient(135deg, #68d391 0%, #48bb78 100%);
+      color: white;
+    }
+
+    .political-card {
+      background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+      color: white;
+    }
+
+    .dynasty-card {
+      background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+      color: white;
+    }
+
+    .space-card {
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      color: white;
+    }
+
+    .alliance-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .crisis-card {
+      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+      color: white;
+      animation: crisisFlash 1s infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    @keyframes toastSlide {
+      from { 
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    @keyframes eventPulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(240, 147, 251, 0.3); }
+      50% { box-shadow: 0 8px 30px rgba(240, 147, 251, 0.6); }
+    }
+
+    @keyframes crisisFlash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .achievement-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      z-index: 2000;
+      animation: achievementPop 0.5s ease-out;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes achievementPop {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff40;
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .mini-game {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .tap-area {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      margin: 15px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .tap-area:active {
+      transform: scale(0.9);
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .leaderboard {
+      background: #f7fafc;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .seasonal-banner {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      text-align: center;
+      padding: 8px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      animation: seasonalGlow 3s infinite;
+    }
+
+    @keyframes seasonalGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(240, 147, 251, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(240, 147, 251, 0.6); }
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .chart {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      border-radius: 5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #48bb78;
+      animation: chartGrow 2s ease-out;
+    }
+
+    @keyframes chartGrow {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    .news-ticker {
+      background: rgba(0, 0, 0, 0.9);
+      color: #00ff00;
+      padding: 5px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      overflow: hidden;
+    }
+
+    .news-item {
+      white-space: nowrap;
+      animation: scroll-news 20s linear infinite;
+    }
+
+    @keyframes scroll-news {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .crisis-alert {
+      background: #f56565;
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      text-align: center;
+      animation: crisisFlash 1s infinite;
+    }
+
+    .weather-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .rain {
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.3"/><circle cx="30" cy="30" r="1" fill="%23ffffff" opacity="0.3"/><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.3"/><circle cx="70" cy="70" r="1" fill="%23ffffff" opacity="0.3"/><circle cx="90" cy="90" r="1" fill="%23ffffff" opacity="0.3"/></svg>') repeat;
+      animation: rain-fall 1s linear infinite;
+    }
+
+    @keyframes rain-fall {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100px; }
+    }
+
+    .day-night-cycle {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      transition: background 2s ease;
+    }
+
+    .day-night-cycle.night {
+      background: rgba(0, 0, 50, 0.3);
+    }
+
+    .reputation-bar {
+      background: #e2e8f0;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .reputation-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f56565 0%, #ed8936 50%, #48bb78 100%);
+      transition: width 0.3s ease;
+    }
+
+    .supply-chain {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f7fafc;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .supply-node {
+      background: #667eea;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 11px;
+    }
+
+    .supply-arrow {
+      font-size: 16px;
+      color: #667eea;
+    }
+
+    .franchise-network {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .franchise-node {
+      background: #48bb78;
+      color: white;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .global-map {
+      background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-pin {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #f56565;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10px;
+      cursor: pointer;
+      animation: mapPulse 2s infinite;
+    }
+
+    @keyframes mapPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .innovation-lab {
+      background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .lab-experiment {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .experiment-progress {
+      background: rgba(255, 255, 255, 0.3);
+      height: 4px;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .experiment-fill {
+      height: 100%;
+      background: white;
+      transition: width 0.3s ease;
+    }
+
+    .mentor-system {
+      background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .mentee-card {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dynasty-tree {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .generation-node {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #f6ad55;
+    }
+
+    .space-station {
+      background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .political-influence {
+      background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .influence-meter {
+      background: rgba(255, 255, 255, 0.3);
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .influence-fill {
+      height: 100%;
+      background: #f6ad55;
+      transition: width 0.3s ease;
+    }
+
+    .philanthropy-section {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .cause-card {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .ai-advisor {
+      background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .advisor-message {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .quantum-computer {
+      background: linear-gradient(135deg, #805ad5 0%, #553c9a 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quantum-particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #f093fb;
+      border-radius: 50%;
+      animation: quantumFloat 3s infinite ease-in-out;
+    }
+
+    @keyframes quantumFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .blockchain-network {
+      background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .block {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      padding: 8px;
+      margin-bottom: 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+    }
+
+    .vr-interface {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .vr-element {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      transform: perspective(1000px) rotateX(10deg);
+    }
+
+    .time-machine {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .time-portal {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: timeWarp 2s infinite;
+    }
+
+    @keyframes timeWarp {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    .multiverse-hub {
+      background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .universe-bubble {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      animation: universePulse 4s infinite ease-in-out;
+    }
+
+    @keyframes universePulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="day-night-cycle" id="day-night-cycle"></div>
+  <div class="weather-effect" id="weather-effect"></div>
+  <div class="mobile-container">
+   <div class="top-bar">
+    <div class="game-title" id="game-title">
+     Ultimate Business Empire
+    </div>
+    <div class="company-name" id="company-name">
+     Global Dynamics Corp
+    </div>
+    <div class="stats-row">
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       💰 Cash
+      </div>
+      <div class="stat-mini-value" id="cash">
+       $25K
+      </div>
+      <div class="prestige-indicator" id="prestige-level" style="display: none;">
+       0
+      </div>
+     </div>
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       📈 Income
+      </div>
+      <div class="stat-mini-value" id="income">
+       $0/s
+      </div>
+     </div>
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       🏆 Level
+      </div>
+      <div class="stat-mini-value" id="player-level">
+       1
+      </div>
+     </div>
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       ⭐ Rep
+      </div>
+      <div class="stat-mini-value" id="reputation">
+       100
+      </div>
+     </div>
+    </div>
+    <div class="stats-row">
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       🏢 Business
+      </div>
+      <div class="stat-mini-value" id="business-count">
+       0
+      </div>
+     </div>
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       🏠 Property
+      </div>
+      <div class="stat-mini-value" id="property-count">
+       0
+      </div>
+     </div>
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       📊 Stocks
+      </div>
+      <div class="stat-mini-value" id="stock-count">
+       0
+      </div>
+     </div>
+     <div class="stat-mini">
+      <div class="stat-mini-label">
+       👥 Staff
+      </div>
+      <div class="stat-mini-value" id="staff-count">
+       0
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="market-ticker" id="market-ticker">
+    <div class="ticker-content" id="ticker-content">
+     📈 AAPL +2.5% | 📉 TSLA -1.2% | 🚀 SPACE +15.7% | ₿ BTC $45,230 | 🏠 NYC Real Estate +3.1% | 🌍 Global GDP Growth 2.8%
+    </div>
+   </div>
+   <div class="weather-widget" id="weather-widget">
+    ☀️ Sunny 72°F - Perfect business weather! (+10% foot traffic)
+   </div>
+   <div id="seasonal-banner" class="seasonal-banner" style="display: none;">
+    🎄 Holiday Special: Double XP Weekend! 🎄
+   </div>
+   <div id="crisis-alert" class="crisis-alert" style="display: none;">
+    🚨 MARKET CRASH: All investments down 20%! 🚨
+   </div>
+   <div class="city-selector">
+    <div class="city-grid" id="city-grid"></div>
+   </div>
+   <div class="content-area" id="content-area"><!-- Dynamic content based on selected tab -->
+   </div><button class="floating-btn" onclick="showQuickActions()" id="quick-btn">⚡</button>
+   <div class="bottom-nav">
+    <div class="nav-grid"><button class="nav-btn active" onclick="switchTab('businesses')" id="nav-businesses"> <span class="nav-icon">🏢</span> <span>Business</span> </button> <button class="nav-btn" onclick="switchTab('properties')" id="nav-properties"> <span class="nav-icon">🏠</span> <span>Property</span> </button> <button class="nav-btn" onclick="switchTab('stocks')" id="nav-stocks"> <span class="nav-icon">📊</span> <span>Stocks</span> </button> <button class="nav-btn" onclick="switchTab('crypto')" id="nav-crypto"> <span class="nav-icon">₿</span> <span>Crypto</span> </button> <button class="nav-btn" onclick="switchTab('staff')" id="nav-staff"> <span class="nav-icon">👥</span> <span>Staff</span> </button> <button class="nav-btn" onclick="switchTab('research')" id="nav-research"> <span class="nav-icon">🔬</span> <span>Research</span>
+      <div class="notification-badge" id="research-badge" style="display: none;">
+       !
+      </div></button> <button class="nav-btn" onclick="switchTab('global')" id="nav-global"> <span class="nav-icon">🌍</span> <span>Global</span> </button> <button class="nav-btn" onclick="switchTab('portfolio')" id="nav-portfolio"> <span class="nav-icon">💼</span> <span>Portfolio</span> </button>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Expanded game data with all new features
+    const CITIES = [
+      { id: 'newyork', emoji: '🗽', name: 'New York', multiplier: 1.8, unlockLevel: 1, development: 0, population: 8400000, weather: 'sunny', timeZone: -5 },
+      { id: 'london', emoji: '🇬🇧', name: 'London', multiplier: 1.6, unlockLevel: 2, development: 0, population: 9000000, weather: 'rainy', timeZone: 0 },
+      { id: 'tokyo', emoji: '🗾', name: 'Tokyo', multiplier: 1.7, unlockLevel: 3, development: 0, population: 14000000, weather: 'cloudy', timeZone: 9 },
+      { id: 'singapore', emoji: '🇸🇬', name: 'Singapore', multiplier: 1.5, unlockLevel: 4, development: 0, population: 5900000, weather: 'humid', timeZone: 8 },
+      { id: 'dubai', emoji: '🏜️', name: 'Dubai', multiplier: 2.0, unlockLevel: 5, development: 0, population: 3400000, weather: 'hot', timeZone: 4 },
+      { id: 'sydney', emoji: '🇦🇺', name: 'Sydney', multiplier: 1.4, unlockLevel: 6, development: 0, population: 5300000, weather: 'sunny', timeZone: 10 },
+      { id: 'mumbai', emoji: '🇮🇳', name: 'Mumbai', multiplier: 1.3, unlockLevel: 7, development: 0, population: 20400000, weather: 'monsoon', timeZone: 5.5 },
+      { id: 'saopaulo', emoji: '🇧🇷', name: 'São Paulo', multiplier: 1.2, unlockLevel: 8, development: 0, population: 12300000, weather: 'tropical', timeZone: -3 },
+      { id: 'moscow', emoji: '🇷🇺', name: 'Moscow', multiplier: 1.6, unlockLevel: 9, development: 0, population: 12500000, weather: 'cold', timeZone: 3 },
+      { id: 'lagos', emoji: '🇳🇬', name: 'Lagos', multiplier: 1.1, unlockLevel: 10, development: 0, population: 15300000, weather: 'humid', timeZone: 1 },
+      { id: 'mars_city', emoji: '🚀', name: 'Mars City', multiplier: 5.0, unlockLevel: 50, development: 0, population: 10000, weather: 'space', timeZone: 0 },
+      { id: 'moon_base', emoji: '🌙', name: 'Moon Base', multiplier: 10.0, unlockLevel: 100, development: 0, population: 1000, weather: 'vacuum', timeZone: 0 }
+    ];
+
+    const BUSINESS_TEMPLATES = [
+      { id: 'food_truck', name: '🚚 Food Truck', baseCost: 1000, baseRevenue: 5, category: 'food', staffSlots: 2, supplies: ['ingredients', 'fuel'] },
+      { id: 'cafe', name: '☕ Coffee Shop', baseCost: 5000, baseRevenue: 25, category: 'food', staffSlots: 3, supplies: ['coffee_beans', 'milk'] },
+      { id: 'restaurant', name: '🍕 Restaurant', baseCost: 25000, baseRevenue: 125, category: 'food', staffSlots: 5, supplies: ['ingredients', 'wine'] },
+      { id: 'boutique', name: '👗 Boutique', baseCost: 15000, baseRevenue: 75, category: 'retail', staffSlots: 3, supplies: ['clothing', 'accessories'] },
+      { id: 'electronics', name: '📱 Electronics Store', baseCost: 50000, baseRevenue: 250, category: 'retail', staffSlots: 4, supplies: ['electronics', 'warranties'] },
+      { id: 'app_dev', name: '📱 App Development', baseCost: 75000, baseRevenue: 375, category: 'tech', staffSlots: 6, supplies: ['software_licenses', 'cloud_hosting'] },
+      { id: 'ai_startup', name: '🤖 AI Startup', baseCost: 200000, baseRevenue: 1000, category: 'tech', staffSlots: 8, supplies: ['gpu_compute', 'data_feeds'] },
+      { id: 'crypto_mining', name: '₿ Crypto Mining', baseCost: 500000, baseRevenue: 2500, category: 'crypto', staffSlots: 4, supplies: ['electricity', 'mining_rigs'] },
+      { id: 'real_estate', name: '🏠 Real Estate', baseCost: 1000000, baseRevenue: 5000, category: 'property', staffSlots: 6, supplies: ['legal_services', 'marketing'] },
+      { id: 'space_tourism', name: '🚀 Space Tourism', baseCost: 10000000, baseRevenue: 50000, category: 'future', staffSlots: 10, supplies: ['rocket_fuel', 'life_support'] },
+      { id: 'quantum_lab', name: '⚛️ Quantum Lab', baseCost: 50000000, baseRevenue: 250000, category: 'future', staffSlots: 12, supplies: ['quantum_processors', 'cryogenic_cooling'] },
+      { id: 'time_travel', name: '⏰ Time Travel Agency', baseCost: 100000000, baseRevenue: 500000, category: 'future', staffSlots: 15, supplies: ['temporal_fuel', 'paradox_insurance'] }
+    ];
+
+    const PROPERTY_TYPES = [
+      { id: 'apartment', name: '🏠 Apartment Building', baseCost: 500000, baseRent: 5000, category: 'residential', units: 20 },
+      { id: 'office_tower', name: '🏢 Office Tower', baseCost: 2000000, baseRent: 25000, category: 'commercial', units: 50 },
+      { id: 'shopping_mall', name: '🛍️ Shopping Mall', baseCost: 5000000, baseRent: 75000, category: 'retail', units: 100 },
+      { id: 'hotel', name: '🏨 Luxury Hotel', baseCost: 10000000, baseRent: 150000, category: 'hospitality', units: 200 },
+      { id: 'warehouse', name: '📦 Warehouse Complex', baseCost: 1000000, baseRent: 10000, category: 'industrial', units: 10 },
+      { id: 'data_center', name: '💾 Data Center', baseCost: 15000000, baseRent: 200000, category: 'tech', units: 5 },
+      { id: 'space_station', name: '🛰️ Space Station', baseCost: 1000000000, baseRent: 10000000, category: 'space', units: 1000 }
+    ];
+
+    const STOCK_COMPANIES = [
+      { id: 'apple', symbol: 'AAPL', name: 'Apple Inc.', price: 150, volatility: 0.15, sector: 'tech' },
+      { id: 'tesla', symbol: 'TSLA', name: 'Tesla Inc.', price: 800, volatility: 0.25, sector: 'auto' },
+      { id: 'amazon', symbol: 'AMZN', name: 'Amazon.com', price: 3200, volatility: 0.18, sector: 'retail' },
+      { id: 'google', symbol: 'GOOGL', name: 'Alphabet Inc.', price: 2500, volatility: 0.16, sector: 'tech' },
+      { id: 'microsoft', symbol: 'MSFT', name: 'Microsoft Corp.', price: 300, volatility: 0.14, sector: 'tech' },
+      { id: 'spacex', symbol: 'SPCE', name: 'SpaceX Corp.', price: 50, volatility: 0.35, sector: 'space' },
+      { id: 'quantum_corp', symbol: 'QNTM', name: 'Quantum Corp.', price: 1000, volatility: 0.40, sector: 'quantum' },
+      { id: 'mars_mining', symbol: 'MARS', name: 'Mars Mining Co.', price: 25, volatility: 0.50, sector: 'space' }
+    ];
+
+    const CRYPTOCURRENCIES = [
+      { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', price: 45000, volatility: 0.30 },
+      { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', price: 3000, volatility: 0.35 },
+      { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin', price: 0.25, volatility: 0.50 },
+      { id: 'cardano', symbol: 'ADA', name: 'Cardano', price: 1.20, volatility: 0.40 },
+      { id: 'solana', symbol: 'SOL', name: 'Solana', price: 150, volatility: 0.45 },
+      { id: 'mars_coin', symbol: 'MARS', name: 'MarsCoin', price: 10, volatility: 0.60 },
+      { id: 'quantum_coin', symbol: 'QBIT', name: 'QuantumBit', price: 500, volatility: 0.70 },
+      { id: 'time_coin', symbol: 'TIME', name: 'TimeCoin', price: 1000, volatility: 0.80 }
+    ];
+
+    const STAFF_TYPES = [
+      { id: 'manager', name: 'Manager', icon: '👔', cost: 5000, efficiency: 1.5, specialty: 'all', happiness: 100 },
+      { id: 'marketer', name: 'Marketing Expert', icon: '📢', cost: 8000, efficiency: 1.3, specialty: 'revenue', happiness: 100 },
+      { id: 'accountant', name: 'Accountant', icon: '📊', cost: 6000, efficiency: 1.2, specialty: 'cost', happiness: 100 },
+      { id: 'tech_lead', name: 'Tech Lead', icon: '💻', cost: 12000, efficiency: 2.0, specialty: 'tech', happiness: 100 },
+      { id: 'sales_rep', name: 'Sales Rep', icon: '🤝', cost: 7000, efficiency: 1.4, specialty: 'sales', happiness: 100 },
+      { id: 'consultant', name: 'Business Consultant', icon: '🎯', cost: 15000, efficiency: 1.8, specialty: 'strategy', happiness: 100 },
+      { id: 'ai_specialist', name: 'AI Specialist', icon: '🤖', cost: 25000, efficiency: 3.0, specialty: 'ai', happiness: 100 },
+      { id: 'quantum_engineer', name: 'Quantum Engineer', icon: '⚛️', cost: 50000, efficiency: 5.0, specialty: 'quantum', happiness: 100 },
+      { id: 'space_pilot', name: 'Space Pilot', icon: '👨‍🚀', cost: 100000, efficiency: 10.0, specialty: 'space', happiness: 100 }
+    ];
+
+    const SKILL_TREE = [
+      { id: 'entrepreneur', name: 'Entrepreneur', icon: '🚀', cost: 0, unlocked: true, effect: 'Base skills', category: 'foundation' },
+      { id: 'negotiator', name: 'Negotiator', icon: '🤝', cost: 5, unlocked: false, effect: '10% better deals', category: 'foundation' },
+      { id: 'tech_mogul', name: 'Tech Mogul', icon: '💻', cost: 10, unlocked: false, effect: '50% tech bonus', category: 'specialization' },
+      { id: 'real_estate_baron', name: 'Real Estate Baron', icon: '🏢', cost: 15, unlocked: false, effect: '30% property bonus', category: 'specialization' },
+      { id: 'investment_guru', name: 'Investment Guru', icon: '📈', cost: 20, unlocked: false, effect: '25% investment returns', category: 'specialization' },
+      { id: 'global_tycoon', name: 'Global Tycoon', icon: '🌍', cost: 50, unlocked: false, effect: '2x city bonuses', category: 'mastery' },
+      { id: 'space_pioneer', name: 'Space Pioneer', icon: '🚀', cost: 100, unlocked: false, effect: 'Unlock space businesses', category: 'mastery' },
+      { id: 'time_lord', name: 'Time Lord', icon: '⏰', cost: 500, unlocked: false, effect: 'Manipulate time flow', category: 'transcendent' },
+      { id: 'multiverse_emperor', name: 'Multiverse Emperor', icon: '🌌', cost: 1000, unlocked: false, effect: 'Rule multiple realities', category: 'transcendent' }
+    ];
+
+    const RESEARCH_PROJECTS = [
+      { id: 'automation', name: 'Business Automation', icon: '🤖', cost: 50000, duration: 300, effect: 'Auto-collect revenue', category: 'efficiency' },
+      { id: 'ai_analytics', name: 'AI Analytics', icon: '🧠', cost: 100000, duration: 600, effect: 'Predict market trends', category: 'intelligence' },
+      { id: 'blockchain', name: 'Blockchain Integration', icon: '⛓️', cost: 200000, duration: 900, effect: 'Secure transactions', category: 'security' },
+      { id: 'quantum_computing', name: 'Quantum Computing', icon: '⚛️', cost: 500000, duration: 1800, effect: 'Ultra-fast processing', category: 'quantum' },
+      { id: 'fusion_power', name: 'Fusion Power', icon: '⚡', cost: 1000000, duration: 3600, effect: 'Unlimited clean energy', category: 'energy' },
+      { id: 'teleportation', name: 'Teleportation Network', icon: '🌀', cost: 5000000, duration: 7200, effect: 'Instant global transport', category: 'transport' },
+      { id: 'time_manipulation', name: 'Time Manipulation', icon: '⏰', cost: 10000000, duration: 14400, effect: 'Control time flow', category: 'temporal' },
+      { id: 'reality_engine', name: 'Reality Engine', icon: '🌌', cost: 100000000, duration: 86400, effect: 'Create pocket universes', category: 'reality' }
+    ];
+
+    const SUPPLY_CHAINS = {
+      'ingredients': { name: 'Fresh Ingredients', cost: 100, suppliers: ['Local Farms', 'Organic Co-op', 'Global Foods'] },
+      'coffee_beans': { name: 'Coffee Beans', cost: 50, suppliers: ['Colombian Farms', 'Ethiopian Highlands', 'Brazilian Estates'] },
+      'electronics': { name: 'Electronics', cost: 1000, suppliers: ['Shenzhen Tech', 'Silicon Valley', 'Korean Semiconductors'] },
+      'software_licenses': { name: 'Software Licenses', cost: 500, suppliers: ['Microsoft', 'Adobe', 'Oracle'] },
+      'gpu_compute': { name: 'GPU Compute', cost: 2000, suppliers: ['NVIDIA Cloud', 'AMD Datacenter', 'Google TPU'] },
+      'rocket_fuel': { name: 'Rocket Fuel', cost: 10000, suppliers: ['SpaceX', 'Blue Origin', 'NASA'] },
+      'quantum_processors': { name: 'Quantum Processors', cost: 100000, suppliers: ['IBM Quantum', 'Google Quantum', 'IonQ'] },
+      'temporal_fuel': { name: 'Temporal Fuel', cost: 1000000, suppliers: ['Chronos Corp', 'Time Dynamics', 'Paradox Industries'] }
+    };
+
+    const POLITICAL_POSITIONS = [
+      { id: 'city_council', name: 'City Council Member', cost: 100000, influence: 10, benefits: ['Zoning permits', 'Tax breaks'] },
+      { id: 'mayor', name: 'Mayor', cost: 1000000, influence: 50, benefits: ['City contracts', 'Infrastructure projects'] },
+      { id: 'governor', name: 'Governor', cost: 10000000, influence: 100, benefits: ['State policies', 'Regulatory control'] },
+      { id: 'senator', name: 'Senator', cost: 50000000, influence: 200, benefits: ['Federal legislation', 'International trade'] },
+      { id: 'president', name: 'President', cost: 1000000000, influence: 1000, benefits: ['Global policies', 'Space programs'] }
+    ];
+
+    const PHILANTHROPIC_CAUSES = [
+      { id: 'education', name: 'Education Initiative', icon: '📚', cost: 100000, reputation: 50, effect: 'Skilled workforce' },
+      { id: 'healthcare', name: 'Healthcare Foundation', icon: '🏥', cost: 500000, reputation: 100, effect: 'Healthy employees' },
+      { id: 'environment', name: 'Environmental Protection', icon: '🌱', cost: 250000, reputation: 75, effect: 'Green bonuses' },
+      { id: 'space_exploration', name: 'Space Exploration Fund', icon: '🚀', cost: 10000000, reputation: 500, effect: 'Space tech access' },
+      { id: 'ai_safety', name: 'AI Safety Research', icon: '🤖', cost: 5000000, reputation: 300, effect: 'AI risk mitigation' },
+      { id: 'time_research', name: 'Temporal Research Institute', icon: '⏰', cost: 100000000, reputation: 1000, effect: 'Time tech access' }
+    ];
+
+    // Enhanced game state with all new features
+    let gameState = {
+      cash: 25000,
+      startTime: Date.now(),
+      lastTick: Date.now(),
+      currentCity: 'newyork',
+      currentTab: 'businesses',
+      playerLevel: 1,
+      experience: 0,
+      reputation: 100,
+      prestigeLevel: 0,
+      prestigePoints: 0,
+      politicalInfluence: 0,
+      entities: [],
+      properties: [],
+      stocks: [],
+      crypto: [],
+      staff: [],
+      skills: ['entrepreneur'],
+      research: [],
+      achievements: [],
+      loans: [],
+      events: [],
+      supplies: {},
+      franchises: [],
+      partnerships: [],
+      mentees: [],
+      dynasty: { generation: 1, heirs: [] },
+      spaceAssets: [],
+      timelineAlterations: [],
+      multiversePortfolios: [],
+      lastEventTime: Date.now(),
+      totalEarnings: 0,
+      marketConditions: {
+        economy: 'stable',
+        techTrend: 1.0,
+        realEstateTrend: 1.0,
+        cryptoTrend: 1.0,
+        stockMarket: 1.0,
+        globalStability: 1.0
+      },
+      weather: {
+        current: 'sunny',
+        temperature: 72,
+        effect: 1.1
+      },
+      timeOfDay: 'day',
+      offlineTime: 0,
+      dailyChallenge: null,
+      seasonalEvent: null,
+      competitors: [],
+      notifications: [],
+      aiAdvisor: {
+        enabled: false,
+        suggestions: []
+      },
+      quantumComputer: {
+        enabled: false,
+        processing: []
+      },
+      blockchainNetwork: {
+        enabled: false,
+        blocks: []
+      },
+      vrInterface: {
+        enabled: false,
+        environments: []
+      },
+      timeMachine: {
+        enabled: false,
+        destinations: []
+      },
+      multiverseHub: {
+        enabled: false,
+        universes: []
+      }
+    };
+
+    // Initialize all systems
+    function init() {
+      loadGame();
+      initializeAllSystems();
+      renderCityGrid();
+      renderCurrentTab();
+      startGameLoop();
+      startAdvancedSystems();
+      showWelcomeMessage();
+    }
+
+    function initializeAllSystems() {
+      initializeMarket();
+      initializeWeather();
+      initializeTimeSystem();
+      generateCompetitors();
+      checkSeasonalEvents();
+      initializeSupplyChains();
+      initializePoliticalSystem();
+      initializeAIAdvisor();
+      initializeQuantumComputer();
+      initializeBlockchain();
+      initializeVRInterface();
+      initializeTimeMachine();
+      initializeMultiverse();
+    }
+
+    function initializeMarket() {
+      gameState.marketConditions = {
+        economy: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'boom' : 'recession') : 'stable',
+        techTrend: 0.8 + Math.random() * 0.4,
+        realEstateTrend: 0.8 + Math.random() * 0.4,
+        cryptoTrend: 0.5 + Math.random() * 1.0,
+        stockMarket: 0.9 + Math.random() * 0.2,
+        globalStability: 0.8 + Math.random() * 0.4
+      };
+      
+      // Initialize stock prices with random fluctuations
+      STOCK_COMPANIES.forEach(stock => {
+        stock.currentPrice = stock.price * (0.8 + Math.random() * 0.4);
+        stock.priceHistory = [stock.currentPrice];
+      });
+      
+      // Initialize crypto prices
+      CRYPTOCURRENCIES.forEach(crypto => {
+        crypto.currentPrice = crypto.price * (0.5 + Math.random() * 1.0);
+        crypto.priceHistory = [crypto.currentPrice];
+      });
+    }
+
+    function initializeWeather() {
+      const weatherTypes = ['sunny', 'rainy', 'cloudy', 'stormy', 'snowy'];
+      gameState.weather = {
+        current: weatherTypes[Math.floor(Math.random() * weatherTypes.length)],
+        temperature: 60 + Math.random() * 40,
+        effect: 0.9 + Math.random() * 0.2
+      };
+      updateWeatherDisplay();
+    }
+
+    function initializeTimeSystem() {
+      const hour = new Date().getHours();
+      gameState.timeOfDay = (hour >= 6 && hour < 18) ? 'day' : 'night';
+      updateDayNightCycle();
+    }
+
+    function initializeSupplyChains() {
+      Object.keys(SUPPLY_CHAINS).forEach(supply => {
+        gameState.supplies[supply] = {
+          quantity: 100,
+          cost: SUPPLY_CHAINS[supply].cost,
+          supplier: SUPPLY_CHAINS[supply].suppliers[0],
+          quality: 1.0
+        };
+      });
+    }
+
+    function initializePoliticalSystem() {
+      gameState.politicalInfluence = 0;
+      gameState.politicalPositions = [];
+    }
+
+    function initializeAIAdvisor() {
+      if (gameState.research.some(r => r.project_id === 'ai_analytics' && r.status === 'completed')) {
+        gameState.aiAdvisor.enabled = true;
+        generateAISuggestions();
+      }
+    }
+
+    function initializeQuantumComputer() {
+      if (gameState.research.some(r => r.project_id === 'quantum_computing' && r.status === 'completed')) {
+        gameState.quantumComputer.enabled = true;
+      }
+    }
+
+    function initializeBlockchain() {
+      if (gameState.research.some(r => r.project_id === 'blockchain' && r.status === 'completed')) {
+        gameState.blockchainNetwork.enabled = true;
+        generateGenesisBlock();
+      }
+    }
+
+    function initializeVRInterface() {
+      if (gameState.playerLevel >= 25) {
+        gameState.vrInterface.enabled = true;
+      }
+    }
+
+    function initializeTimeMachine() {
+      if (gameState.research.some(r => r.project_id === 'time_manipulation' && r.status === 'completed')) {
+        gameState.timeMachine.enabled = true;
+      }
+    }
+
+    function initializeMultiverse() {
+      if (gameState.research.some(r => r.project_id === 'reality_engine' && r.status === 'completed')) {
+        gameState.multiverseHub.enabled = true;
+        generateParallelUniverses();
+      }
+    }
+
+    function startAdvancedSystems() {
+      // Market fluctuation system
+      setInterval(() => {
+        updateStockPrices();
+        updateCryptoPrices();
+        updateRealEstatePrices();
+        updateMarketTicker();
+      }, 5000);
+
+      // Weather system
+      setInterval(() => {
+        updateWeather();
+      }, 30000);
+
+      // Time system
+      setInterval(() => {
+        updateTimeOfDay();
+      }, 60000);
+
+      // AI Advisor system
+      if (gameState.aiAdvisor.enabled) {
+        setInterval(() => {
+          generateAISuggestions();
+        }, 120000);
+      }
+
+      // Supply chain system
+      setInterval(() => {
+        updateSupplyChains();
+      }, 45000);
+
+      // Political events
+      setInterval(() => {
+        generatePoliticalEvents();
+      }, 180000);
+
+      // Crisis management
+      setInterval(() => {
+        checkForCrises();
+      }, 300000);
+
+      // Quantum processing
+      if (gameState.quantumComputer.enabled) {
+        setInterval(() => {
+          processQuantumTasks();
+        }, 10000);
+      }
+
+      // Blockchain mining
+      if (gameState.blockchainNetwork.enabled) {
+        setInterval(() => {
+          mineNewBlock();
+        }, 60000);
+      }
+
+      // Multiverse synchronization
+      if (gameState.multiverseHub.enabled) {
+        setInterval(() => {
+          synchronizeUniverses();
+        }, 300000);
+      }
+    }
+
+    // Enhanced tab rendering with all new features
+    function renderCurrentTab() {
+      const container = document.getElementById('content-area');
+      
+      switch (gameState.currentTab) {
+        case 'businesses':
+          renderBusinessesTab(container);
+          break;
+        case 'properties':
+          renderPropertiesTab(container);
+          break;
+        case 'stocks':
+          renderStocksTab(container);
+          break;
+        case 'crypto':
+          renderCryptoTab(container);
+          break;
+        case 'staff':
+          renderStaffTab(container);
+          break;
+        case 'research':
+          renderResearchTab(container);
+          break;
+        case 'global':
+          renderGlobalTab(container);
+          break;
+        case 'portfolio':
+          renderPortfolioTab(container);
+          break;
+      }
+    }
+
+    function renderBusinessesTab(container) {
+      const city = CITIES.find(c => c.id === gameState.currentCity);
+      const ownedBusinesses = gameState.entities.filter(e => 
+        e.entity_type === 'business' && 
+        e.owner_type === 'player' && 
+        e.city === gameState.currentCity
+      );
+
+      container.innerHTML = `
+        ${renderMiniGame()}
+        ${renderSupplyChainStatus()}
+        ${renderFranchiseNetwork()}
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">
+            🏢 Available Businesses in ${city.name}
+          </h3>
+          <div id="available-businesses"></div>
+        </div>
+        
+        <div>
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">
+            🏆 Your Businesses (${ownedBusinesses.length})
+          </h3>
+          <div id="owned-businesses"></div>
+        </div>
+      `;
+
+      renderAvailableBusinesses();
+      renderOwnedBusinesses();
+    }
+
+    function renderPropertiesTab(container) {
+      container.innerHTML = `
+        ${renderRealEstateMarket()}
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">🏠 Available Properties</h3>
+          <div id="available-properties"></div>
+        </div>
+        
+        <div>
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">🏆 Your Properties</h3>
+          <div id="owned-properties"></div>
+        </div>
+      `;
+
+      renderAvailableProperties();
+      renderOwnedProperties();
+    }
+
+    function renderStocksTab(container) {
+      container.innerHTML = `
+        ${renderStockMarketOverview()}
+        ${renderTradingInterface()}
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">📊 Available Stocks</h3>
+          <div id="available-stocks"></div>
+        </div>
+        
+        <div>
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">💼 Your Portfolio</h3>
+          <div id="stock-portfolio"></div>
+        </div>
+      `;
+
+      renderAvailableStocks();
+      renderStockPortfolio();
+    }
+
+    function renderCryptoTab(container) {
+      container.innerHTML = `
+        ${renderCryptoMarketOverview()}
+        ${renderCryptoMining()}
+        ${renderDeFiProtocols()}
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">₿ Available Cryptocurrencies</h3>
+          <div id="available-crypto"></div>
+        </div>
+        
+        <div>
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">💎 Your Crypto Portfolio</h3>
+          <div id="crypto-portfolio"></div>
+        </div>
+      `;
+
+      renderAvailableCrypto();
+      renderCryptoPortfolio();
+    }
+
+    function renderGlobalTab(container) {
+      container.innerHTML = `
+        ${renderGlobalMap()}
+        ${renderPoliticalInfluence()}
+        ${renderPhilanthropy()}
+        ${renderSpaceOperations()}
+        ${renderTimeOperations()}
+        ${renderMultiverseHub()}
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; color: white; text-align: center;">🌍 Global Operations</h3>
+          <div id="global-operations"></div>
+        </div>
+      `;
+
+      renderGlobalOperations();
+    }
+
+    // Advanced rendering functions for new features
+    function renderSupplyChainStatus() {
+      return `
+        <div class="supply-card">
+          <div class="card-header">
+            <div class="card-title">📦 Supply Chain Status</div>
+            <div class="card-badge">Active</div>
+          </div>
+          <div class="supply-chain">
+            <div class="supply-node">Suppliers</div>
+            <div class="supply-arrow">→</div>
+            <div class="supply-node">Inventory</div>
+            <div class="supply-arrow">→</div>
+            <div class="supply-node">Businesses</div>
+            <div class="supply-arrow">→</div>
+            <div class="supply-node">Customers</div>
+          </div>
+          <div style="font-size: 12px; margin-top: 10px;">
+            📊 Efficiency: ${(gameState.supplies.ingredients?.quality * 100 || 100).toFixed(0)}% | 
+            💰 Cost Optimization: ${Math.floor(Math.random() * 20 + 80)}%
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFranchiseNetwork() {
+      if (gameState.franchises.length === 0) return '';
+      
+      return `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏪 Franchise Network</div>
+            <div class="card-badge">${gameState.franchises.length}</div>
+          </div>
+          <div class="franchise-network">
+            ${gameState.franchises.map(franchise => `
+              <div class="franchise-node">
+                ${franchise.city}<br>
+                $${formatNumber(franchise.revenue)}/mo
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRealEstateMarket() {
+      const trend = gameState.marketConditions.realEstateTrend;
+      const trendIcon = trend > 1.05 ? '📈' : trend < 0.95 ? '📉' : '➡️';
+      
+      return `
+        <div class="property-card">
+          <div class="card-header">
+            <div class="card-title">🏠 Real Estate Market</div>
+            <div class="card-badge">${trendIcon} ${((trend - 1) * 100).toFixed(1)}%</div>
+          </div>
+          <div class="card-info">
+            📊 Market Trend: ${trend > 1.05 ? 'Bull Market' : trend < 0.95 ? 'Bear Market' : 'Stable'}<br>
+            🏘️ Development Index: ${(gameState.currentCity === 'newyork' ? 85 : 65)}%<br>
+            💰 Avg. Price/sqft: $${Math.floor(500 * trend)}<br>
+            📈 Rental Yield: ${(5 + Math.random() * 3).toFixed(1)}%
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStockMarketOverview() {
+      const marketTrend = gameState.marketConditions.stockMarket;
+      const trendIcon = marketTrend > 1.02 ? '📈' : marketTrend < 0.98 ? '📉' : '➡️';
+      
+      return `
+        <div class="stock-card">
+          <div class="card-header">
+            <div class="card-title">📊 Stock Market Overview</div>
+            <div class="card-badge">${trendIcon} ${((marketTrend - 1) * 100).toFixed(1)}%</div>
+          </div>
+          <div class="card-info">
+            📈 S&P 500: ${(4500 * marketTrend).toFixed(0)}<br>
+            🌍 Global Index: ${(3200 * marketTrend).toFixed(0)}<br>
+            💹 Volume: ${formatNumber(Math.floor(Math.random() * 1000000000))}<br>
+            ⚡ Volatility: ${(Math.random() * 30 + 10).toFixed(1)}%
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTradingInterface() {
+      return `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ Quick Trading</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="quickBuyStocks()">📈 Quick Buy</button>
+            <button class="btn btn-danger" onclick="quickSellStocks()">📉 Quick Sell</button>
+            <button class="btn btn-primary" onclick="showAdvancedTrading()">🎯 Advanced</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCryptoMarketOverview() {
+      const cryptoTrend = gameState.marketConditions.cryptoTrend;
+      const trendIcon = cryptoTrend > 1.1 ? '🚀' : cryptoTrend < 0.9 ? '💥' : '🌊';
+      
+      return `
+        <div class="crypto-card">
+          <div class="card-header">
+            <div class="card-title">₿ Crypto Market</div>
+            <div class="card-badge">${trendIcon} ${((cryptoTrend - 1) * 100).toFixed(1)}%</div>
+          </div>
+          <div class="card-info">
+            ₿ Bitcoin: $${formatNumber(CRYPTOCURRENCIES[0].currentPrice)}<br>
+            📊 Market Cap: $${formatNumber(Math.floor(Math.random() * 2000000000000))}<br>
+            🔥 Fear & Greed: ${Math.floor(Math.random() * 100)}<br>
+            ⚡ Network Hash: ${Math.floor(Math.random() * 200)} EH/s
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCryptoMining() {
+      return `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⛏️ Crypto Mining</div>
+            <div class="card-badge">Active</div>
+          </div>
+          <div class="card-info">
+            🔋 Hash Rate: ${Math.floor(Math.random() * 100)} TH/s<br>
+            💡 Power Usage: ${Math.floor(Math.random() * 5000)} kW<br>
+            💰 Daily Earnings: $${formatNumber(Math.floor(Math.random() * 1000))}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="upgradeMiningRig()">⬆️ Upgrade</button>
+            <button class="btn btn-success" onclick="addMiningPool()">🏊 Join Pool</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDeFiProtocols() {
+      return `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🏦 DeFi Protocols</div>
+          </div>
+          <div class="card-info">
+            🌾 Yield Farming: ${(Math.random() * 20 + 5).toFixed(1)}% APY<br>
+            🏊 Liquidity Pools: $${formatNumber(Math.floor(Math.random() * 1000000))}<br>
+            🎯 Staking Rewards: ${(Math.random() * 15 + 3).toFixed(1)}% APR
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="stakeCrypto()">🎯 Stake</button>
+            <button class="btn btn-primary" onclick="provideLiquidity()">🏊 Provide</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGlobalMap() {
+      return `
+        <div class="global-map">
+          <div style="color: white; text-align: center; margin-bottom: 15px;">
+            <h3>🌍 Global Operations Map</h3>
+          </div>
+          ${CITIES.slice(0, 8).map((city, index) => `
+            <div class="map-pin" style="top: ${20 + index * 10}%; left: ${10 + index * 10}%;" 
+                 onclick="switchCity('${city.id}')">
+              ${city.emoji}
+            </div>
+          `).join('')}
+          <div style="position: absolute; bottom: 10px; left: 10px; color: white; font-size: 12px;">
+            📍 ${gameState.entities.filter(e => e.entity_type === 'business').length} Global Businesses
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPoliticalInfluence() {
+      return `
+        <div class="political-card">
+          <div class="card-header">
+            <div class="card-title">🏛️ Political Influence</div>
+            <div class="card-badge">${gameState.politicalInfluence}</div>
+          </div>
+          <div class="card-info">
+            🎯 Current Influence: ${gameState.politicalInfluence}<br>
+            🏆 Highest Position: ${gameState.politicalPositions.length > 0 ? gameState.politicalPositions[0].name : 'None'}<br>
+            📊 Policy Impact: ${Math.floor(gameState.politicalInfluence / 10)}%
+          </div>
+          <div class="influence-meter">
+            <div class="influence-fill" style="width: ${Math.min(100, gameState.politicalInfluence / 10)}%"></div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="showPoliticalCampaign()">🗳️ Campaign</button>
+            <button class="btn btn-warning" onclick="lobbyGovernment()">💼 Lobby</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPhilanthropy() {
+      return `
+        <div class="philanthropy-section">
+          <div class="card-header">
+            <div class="card-title">💚 Philanthropy</div>
+            <div class="card-badge">Rep: ${gameState.reputation}</div>
+          </div>
+          <div class="card-info">
+            🏆 Reputation: ${gameState.reputation}<br>
+            💝 Total Donated: $${formatNumber(gameState.totalDonated || 0)}<br>
+            🌟 Impact Score: ${Math.floor(gameState.reputation / 10)}
+          </div>
+          <div class="reputation-bar">
+            <div class="reputation-fill" style="width: ${Math.min(100, gameState.reputation / 10)}%"></div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="showPhilanthropyOptions()">💝 Donate</button>
+            <button class="btn btn-primary" onclick="startFoundation()">🏛️ Foundation</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSpaceOperations() {
+      if (gameState.playerLevel < 25) return '';
+      
+      return `
+        <div class="space-card">
+          <div class="card-header">
+            <div class="card-title">🚀 Space Operations</div>
+            <div class="card-badge">${gameState.spaceAssets.length}</div>
+          </div>
+          <div class="card-info">
+            🛰️ Satellites: ${gameState.spaceAssets.filter(a => a.type === 'satellite').length}<br>
+            🚀 Rockets: ${gameState.spaceAssets.filter(a => a.type === 'rocket').length}<br>
+            🌙 Moon Bases: ${gameState.spaceAssets.filter(a => a.type === 'moon_base').length}<br>
+            🔴 Mars Colonies: ${gameState.spaceAssets.filter(a => a.type === 'mars_colony').length}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="launchSatellite()">🛰️ Launch</button>
+            <button class="btn btn-success" onclick="colonizeMars()">🔴 Mars</button>
+          </div>
+          ${renderStars()}
+        </div>
+      `;
+    }
+
+    function renderTimeOperations() {
+      if (!gameState.timeMachine.enabled) return '';
+      
+      return `
+        <div class="time-machine">
+          <div class="card-header">
+            <div class="card-title">⏰ Time Operations</div>
+            <div class="card-badge">Active</div>
+          </div>
+          <div class="card-info">
+            🕰️ Temporal Energy: ${Math.floor(Math.random() * 100)}%<br>
+            📅 Timeline Stability: ${(Math.random() * 20 + 80).toFixed(1)}%<br>
+            🔄 Paradox Risk: ${(Math.random() * 30).toFixed(1)}%
+          </div>
+          <div class="time-portal"></div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="timeTravel()">⏰ Travel</button>
+            <button class="btn btn-warning" onclick="alterTimeline()">🔄 Alter</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMultiverseHub() {
+      if (!gameState.multiverseHub.enabled) return '';
+      
+      return `
+        <div class="multiverse-hub">
+          <div class="card-header">
+            <div class="card-title">🌌 Multiverse Hub</div>
+            <div class="card-badge">${gameState.multiverseHub.universes.length}</div>
+          </div>
+          <div class="card-info">
+            🌍 Active Universes: ${gameState.multiverseHub.universes.length}<br>
+            ⚡ Quantum Entanglement: ${(Math.random() * 100).toFixed(1)}%<br>
+            🌀 Reality Stability: ${(Math.random() * 20 + 80).toFixed(1)}%
+          </div>
+          ${renderUniverseBubbles()}
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="createUniverse()">🌌 Create</button>
+            <button class="btn btn-success" onclick="mergeUniverses()">🔄 Merge</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStars() {
+      let stars = '';
+      for (let i = 0; i < 20; i++) {
+        stars += `<div class="star" style="top: ${Math.random() * 100}%; left: ${Math.random() * 100}%; animation-delay: ${Math.random() * 2}s;"></div>`;
+      }
+      return stars;
+    }
+
+    function renderUniverseBubbles() {
+      let bubbles = '';
+      for (let i = 0; i < 5; i++) {
+        const size = 20 + Math.random() * 40;
+        bubbles += `<div class="universe-bubble" style="width: ${size}px; height: ${size}px; top: ${Math.random() * 80}%; left: ${Math.random() * 80}%; animation-delay: ${Math.random() * 4}s;"></div>`;
+      }
+      return bubbles;
+    }
+
+    // Advanced system functions
+    function updateStockPrices() {
+      STOCK_COMPANIES.forEach(stock => {
+        const volatility = stock.volatility;
+        const change = (Math.random() - 0.5) * volatility * 2;
+        const marketEffect = (gameState.marketConditions.stockMarket - 1) * 0.1;
+        
+        stock.currentPrice *= (1 + change + marketEffect);
+        stock.currentPrice = Math.max(stock.currentPrice, stock.price * 0.1); // Prevent negative prices
+        
+        stock.priceHistory.push(stock.currentPrice);
+        if (stock.priceHistory.length > 100) {
+          stock.priceHistory.shift();
+        }
+      });
+    }
+
+    function updateCryptoPrices() {
+      CRYPTOCURRENCIES.forEach(crypto => {
+        const volatility = crypto.volatility;
+        const change = (Math.random() - 0.5) * volatility * 2;
+        const marketEffect = (gameState.marketConditions.cryptoTrend - 1) * 0.2;
+        
+        crypto.currentPrice *= (1 + change + marketEffect);
+        crypto.currentPrice = Math.max(crypto.currentPrice, crypto.price * 0.01);
+        
+        crypto.priceHistory.push(crypto.currentPrice);
+        if (crypto.priceHistory.length > 100) {
+          crypto.priceHistory.shift();
+        }
+      });
+    }
+
+    function updateRealEstatePrices() {
+      PROPERTY_TYPES.forEach(property => {
+        const marketEffect = (gameState.marketConditions.realEstateTrend - 1) * 0.05;
+        property.currentCost = property.baseCost * (1 + marketEffect);
+        property.currentRent = property.baseRent * (1 + marketEffect);
+      });
+    }
+
+    function updateMarketTicker() {
+      const ticker = document.getElementById('ticker-content');
+      if (ticker) {
+        const updates = [
+          `📈 ${STOCK_COMPANIES[0].symbol} ${formatNumber(STOCK_COMPANIES[0].currentPrice)}`,
+          `₿ ${CRYPTOCURRENCIES[0].symbol} $${formatNumber(CRYPTOCURRENCIES[0].currentPrice)}`,
+          `🏠 Real Estate ${gameState.marketConditions.realEstateTrend > 1 ? '+' : ''}${((gameState.marketConditions.realEstateTrend - 1) * 100).toFixed(1)}%`,
+          `🌍 Global GDP ${(Math.random() * 2 + 2).toFixed(1)}%`,
+          `⚡ Energy Prices ${(Math.random() * 10 + 90).toFixed(0)}$/MWh`
+        ];
+        ticker.textContent = updates.join(' | ');
+      }
+    }
+
+    function updateWeather() {
+      const weatherTypes = ['sunny', 'rainy', 'cloudy', 'stormy', 'snowy'];
+      const newWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+      
+      if (newWeather !== gameState.weather.current) {
+        gameState.weather.current = newWeather;
+        gameState.weather.temperature = 60 + Math.random() * 40;
+        gameState.weather.effect = 0.9 + Math.random() * 0.2;
+        updateWeatherDisplay();
+      }
+    }
+
+    function updateWeatherDisplay() {
+      const widget = document.getElementById('weather-widget');
+      const effect = document.getElementById('weather-effect');
+      
+      if (widget) {
+        const weatherEmojis = {
+          sunny: '☀️',
+          rainy: '🌧️',
+          cloudy: '☁️',
+          stormy: '⛈️',
+          snowy: '❄️'
+        };
+        
+        const weatherEffects = {
+          sunny: 'Perfect business weather! (+10% foot traffic)',
+          rainy: 'Rainy day (Indoor businesses +5%)',
+          cloudy: 'Overcast skies (Normal conditions)',
+          stormy: 'Storm warning! (-15% outdoor business)',
+          snowy: 'Snow day! (Delivery businesses +20%)'
+        };
+        
+        widget.innerHTML = `${weatherEmojis[gameState.weather.current]} ${gameState.weather.current.charAt(0).toUpperCase() + gameState.weather.current.slice(1)} ${Math.floor(gameState.weather.temperature)}°F - ${weatherEffects[gameState.weather.current]}`;
+      }
+      
+      if (effect) {
+        effect.className = `weather-effect ${gameState.weather.current === 'rainy' ? 'rain' : ''}`;
+      }
+    }
+
+    function updateTimeOfDay() {
+      const hour = new Date().getHours();
+      const newTimeOfDay = (hour >= 6 && hour < 18) ? 'day' : 'night';
+      
+      if (newTimeOfDay !== gameState.timeOfDay) {
+        gameState.timeOfDay = newTimeOfDay;
+        updateDayNightCycle();
+      }
+    }
+
+    function updateDayNightCycle() {
+      const cycle = document.getElementById('day-night-cycle');
+      if (cycle) {
+        cycle.className = `day-night-cycle ${gameState.timeOfDay}`;
+      }
+    }
+
+    function generateAISuggestions() {
+      const suggestions = [
+        "Consider diversifying into renewable energy sector",
+        "Real estate prices in Tokyo are undervalued",
+        "Tech stocks showing bullish patterns",
+        "Cryptocurrency market volatility creates opportunities",
+        "Supply chain optimization could save 15% costs",
+        "Political instability in region X affects investments",
+        "Weather patterns suggest seasonal business adjustments",
+        "Competitor analysis reveals market gaps"
+      ];
+      
+      gameState.aiAdvisor.suggestions = [
+        suggestions[Math.floor(Math.random() * suggestions.length)],
+        suggestions[Math.floor(Math.random() * suggestions.length)]
+      ];
+    }
+
+    function updateSupplyChains() {
+      Object.keys(gameState.supplies).forEach(supply => {
+        // Random supply disruptions
+        if (Math.random() < 0.05) {
+          gameState.supplies[supply].cost *= (1.1 + Math.random() * 0.2);
+          showToast(`📦 Supply disruption: ${supply} costs increased!`);
+        }
+        
+        // Quality fluctuations
+        gameState.supplies[supply].quality = Math.max(0.5, Math.min(1.5, 
+          gameState.supplies[supply].quality + (Math.random() - 0.5) * 0.1
+        ));
+      });
+    }
+
+    function generatePoliticalEvents() {
+      if (Math.random() < 0.3) {
+        const events = [
+          { name: 'Tax Reform Bill', effect: 'tax_reduction', impact: 0.1 },
+          { name: 'Infrastructure Investment', effect: 'business_boost', impact: 0.15 },
+          { name: 'Trade War Escalation', effect: 'market_volatility', impact: 0.2 },
+          { name: 'Green Energy Subsidies', effect: 'green_bonus', impact: 0.25 }
+        ];
+        
+        const event = events[Math.floor(Math.random() * events.length)];
+        gameState.events.push({
+          id: `political_${Date.now()}`,
+          type: 'political',
+          name: event.name,
+          effect: event.effect,
+          impact: event.impact,
+          duration: 300000 // 5 minutes
+        });
+        
+        showToast(`🏛️ Political Event: ${event.name}`);
+      }
+    }
+
+    function checkForCrises() {
+      if (Math.random() < 0.1) {
+        const crises = [
+          { name: 'Market Crash', effect: 'market_down', severity: 0.3 },
+          { name: 'Cyber Attack', effect: 'tech_disruption', severity: 0.2 },
+          { name: 'Natural Disaster', effect: 'property_damage', severity: 0.25 },
+          { name: 'Pandemic Outbreak', effect: 'business_closure', severity: 0.4 }
+        ];
+        
+        const crisis = crises[Math.floor(Math.random() * crises.length)];
+        
+        document.getElementById('crisis-alert').style.display = 'block';
+        document.getElementById('crisis-alert').textContent = `🚨 CRISIS: ${crisis.name.toUpperCase()}! 🚨`;
+        
+        // Apply crisis effects
+        applyCrisisEffects(crisis);
+        
+        setTimeout(() => {
+          document.getElementById('crisis-alert').style.display = 'none';
+        }, 30000);
+      }
+    }
+
+    function applyCrisisEffects(crisis) {
+      switch (crisis.effect) {
+        case 'market_down':
+          gameState.marketConditions.stockMarket *= (1 - crisis.severity);
+          gameState.marketConditions.cryptoTrend *= (1 - crisis.severity);
+          break;
+        case 'tech_disruption':
+          gameState.entities.forEach(entity => {
+            if (entity.business_type && BUSINESS_TEMPLATES.find(t => t.id === entity.business_type)?.category === 'tech') {
+              entity.revenue_per_tick *= (1 - crisis.severity);
+            }
+          });
+          break;
+        case 'property_damage':
+          gameState.properties.forEach(property => {
+            property.condition *= (1 - crisis.severity * 0.5);
+          });
+          break;
+        case 'business_closure':
+          gameState.entities.forEach(entity => {
+            if (entity.entity_type === 'business') {
+              entity.revenue_per_tick *= (1 - crisis.severity * 0.5);
+            }
+          });
+          break;
+      }
+    }
+
+    function processQuantumTasks() {
+      if (gameState.quantumComputer.processing.length > 0) {
+        gameState.quantumComputer.processing.forEach(task => {
+          task.progress += 10;
+          if (task.progress >= 100) {
+            completeQuantumTask(task);
+          }
+        });
+        
+        gameState.quantumComputer.processing = gameState.quantumComputer.processing.filter(task => task.progress < 100);
+      }
+    }
+
+    function completeQuantumTask(task) {
+      switch (task.type) {
+        case 'market_prediction':
+          // Provide perfect market prediction for next 5 minutes
+          showToast('🔮 Quantum prediction: Market will rise 5% in next 5 minutes!');
+          break;
+        case 'optimization':
+          // Optimize all business operations
+          gameState.entities.forEach(entity => {
+            if (entity.entity_type === 'business') {
+              entity.revenue_per_tick *= 1.1;
+            }
+          });
+          showToast('⚛️ Quantum optimization complete: +10% efficiency!');
+          break;
+        case 'encryption':
+          // Protect against cyber attacks
+          gameState.cyberSecurity = 1.0;
+          showToast('🔒 Quantum encryption activated: Maximum security!');
+          break;
+      }
+    }
+
+    function mineNewBlock() {
+      if (gameState.blockchainNetwork.enabled) {
+        const block = {
+          id: gameState.blockchainNetwork.blocks.length,
+          timestamp: Date.now(),
+          transactions: Math.floor(Math.random() * 1000),
+          hash: generateRandomHash(),
+          reward: Math.floor(Math.random() * 10) + 1
+        };
+        
+        gameState.blockchainNetwork.blocks.push(block);
+        gameState.cash += block.reward;
+        
+        if (gameState.blockchainNetwork.blocks.length > 10) {
+          gameState.blockchainNetwork.blocks.shift();
+        }
+        
+        if (Math.random() < 0.1) {
+          showToast(`⛓️ Block mined! Reward: $${block.reward}`);
+        }
+      }
+    }
+
+    function generateRandomHash() {
+      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+
+    function generateGenesisBlock() {
+      gameState.blockchainNetwork.blocks = [{
+        id: 0,
+        timestamp: Date.now(),
+        transactions: 1,
+        hash: 'genesis_block_hash',
+        reward: 0
+      }];
+    }
+
+    function synchronizeUniverses() {
+      if (gameState.multiverseHub.enabled && gameState.multiverseHub.universes.length > 0) {
+        gameState.multiverseHub.universes.forEach(universe => {
+          // Sync resources between universes
+          const resourceTransfer = Math.floor(universe.resources * 0.01);
+          gameState.cash += resourceTransfer;
+          
+          // Random universe events
+          if (Math.random() < 0.1) {
+            const events = ['Resource Discovery', 'Dimensional Rift', 'Parallel Innovation', 'Quantum Entanglement'];
+            const event = events[Math.floor(Math.random() * events.length)];
+            showToast(`🌌 Universe ${universe.id}: ${event}!`);
+          }
+        });
+      }
+    }
+
+    function generateParallelUniverses() {
+      for (let i = 0; i < 3; i++) {
+        gameState.multiverseHub.universes.push({
+          id: `universe_${i}`,
+          name: `Parallel Earth ${i + 1}`,
+          resources: Math.floor(Math.random() * 1000000),
+          stability: Math.random(),
+          businesses: Math.floor(Math.random() * 50),
+          technology: Math.random()
+        });
+      }
+    }
+
+    // Enhanced UI interaction functions
+    function switchTab(tabName) {
+      gameState.currentTab = tabName;
+      
+      // Update nav buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`nav-${tabName}`).classList.add('active');
+      
+      renderCurrentTab();
+    }
+
+    function switchCity(cityId) {
+      gameState.currentCity = cityId;
+      renderCityGrid();
+      renderCurrentTab();
+      saveGame();
+      
+      const city = CITIES.find(c => c.id === cityId);
+      showToast(`Switched to ${city.name} (${city.multiplier}x multiplier)`);
+    }
+
+    function renderCityGrid() {
+      const container = document.getElementById('city-grid');
+      container.innerHTML = '';
+      
+      CITIES.forEach(city => {
+        const isUnlocked = gameState.playerLevel >= city.unlockLevel;
+        const isActive = city.id === gameState.currentCity;
+        
+        const div = document.createElement('div');
+        div.className = `city-card ${isActive ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+        div.style.opacity = isUnlocked ? '1' : '0.5';
+        div.innerHTML = `
+          <span class="city-emoji">${city.emoji}</span>
+          <div>${city.name}</div>
+          ${!isUnlocked ? `<div style="font-size: 9px; color: #f56565;">Lv.${city.unlockLevel}</div>` : ''}
+          ${city.development > 0 ? `<div class="city-development">+${city.development}%</div>` : ''}
+        `;
+        
+        if (isUnlocked) {
+          div.onclick = () => switchCity(city.id);
+        } else {
+          div.onclick = () => showUnlockGuidance(city);
+        }
+        
+        container.appendChild(div);
+      });
+    }
+
+    // Enhanced game loop with all systems
+    function startGameLoop() {
+      setInterval(() => {
+        const now = Date.now();
+        const deltaTime = (now - gameState.lastTick) / 1000;
+        gameState.lastTick = now;
+
+        let totalIncome = 0;
+        
+        // Business income
+        gameState.entities.forEach(entity => {
+          if (entity.entity_type === 'business' && entity.owner_type === 'player') {
+            let income = entity.revenue_per_tick;
+            
+            // Apply staff bonuses
+            const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
+            assignedStaff.forEach(staff => {
+              const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
+              income *= (staffType.efficiency * staff.level * (staff.happiness / 100));
+            });
+            
+            // Apply weather effects
+            income *= gameState.weather.effect;
+            
+            // Apply time of day effects
+            if (gameState.timeOfDay === 'night' && entity.business_type === 'restaurant') {
+              income *= 1.2; // Restaurants do better at night
+            }
+            
+            // Apply temporary multipliers
+            income *= (entity.temp_multiplier || 1.0);
+            
+            totalIncome += income;
+          }
+        });
+
+        // Property income
+        gameState.properties.forEach(property => {
+          totalIncome += property.monthly_rent / (30 * 24 * 3600); // Convert to per-second
+        });
+
+        // Stock dividends
+        gameState.stocks.forEach(stock => {
+          const company = STOCK_COMPANIES.find(c => c.id === stock.company_id);
+          if (company) {
+            const dividend = stock.shares * company.currentPrice * 0.0001; // 0.01% daily dividend
+            totalIncome += dividend / (24 * 3600);
+          }
+        });
+
+        // Crypto staking rewards
+        gameState.crypto.forEach(crypto => {
+          if (crypto.staked) {
+            const reward = crypto.amount * 0.0001; // 0.01% daily staking reward
+            totalIncome += reward / (24 * 3600);
+          }
+        });
+
+        gameState.cash += totalIncome * deltaTime;
+        gameState.totalEarnings += totalIncome * deltaTime;
+        updateStats();
+        
+        // Random events
+        if (Math.random() < 0.0001 && gameState.events.length === 0) {
+          generateRandomEvent();
+        }
+        
+        // Save periodically
+        if (Math.random() < 0.01) {
+          saveGame();
+        }
+      }, 100);
+
+      setInterval(() => {
+        checkLevelUp();
+        checkAchievements();
+        updateMarketConditions();
+        updateStaffHappiness();
+        processResearch();
+      }, 5000);
+    }
+
+    function updateMarketConditions() {
+      // Slowly change market conditions
+      Object.keys(gameState.marketConditions).forEach(condition => {
+        gameState.marketConditions[condition] += (Math.random() - 0.5) * 0.02;
+        gameState.marketConditions[condition] = Math.max(0.5, Math.min(1.5, gameState.marketConditions[condition]));
+      });
+      
+      // Occasionally change economy
+      if (Math.random() < 0.001) {
+        const economies = ['boom', 'stable', 'recession'];
+        gameState.marketConditions.economy = economies[Math.floor(Math.random() * economies.length)];
+        showToast(`📊 Economy changed to: ${gameState.marketConditions.economy.toUpperCase()}`);
+      }
+    }
+
+    function updateStaffHappiness() {
+      gameState.staff.forEach(staff => {
+        // Happiness naturally decreases over time
+        staff.happiness = Math.max(20, staff.happiness - 0.1);
+        
+        // Random events affect happiness
+        if (Math.random() < 0.01) {
+          const events = [
+            { name: 'Promotion', effect: 10 },
+            { name: 'Bonus', effect: 15 },
+            { name: 'Conflict', effect: -20 },
+            { name: 'Burnout', effect: -15 }
+          ];
+          
+          const event = events[Math.floor(Math.random() * events.length)];
+          staff.happiness = Math.max(0, Math.min(100, staff.happiness + event.effect));
+          
+          if (event.effect < 0) {
+            showToast(`👥 Staff issue: ${staff.name} - ${event.name}`);
+          }
+        }
+      });
+    }
+
+    function processResearch() {
+      gameState.research.forEach(research => {
+        if (research.status === 'in_progress') {
+          const elapsed = Date.now() - research.started_at;
+          if (elapsed >= research.duration) {
+            research.status = 'completed';
+            research.completed_at = Date.now();
+            
+            const project = RESEARCH_PROJECTS.find(p => p.id === research.project_id);
+            showToast(`✅ Research completed: ${project.name}!`);
+            
+            // Apply research effects
+            applyResearchEffects(project);
+          }
+        }
+      });
+    }
+
+    function applyResearchEffects(project) {
+      switch (project.id) {
+        case 'automation':
+          // Enable auto-collection
+          setInterval(() => {
+            const revenue = gameState.entities.reduce((sum, e) => {
+              if (e.entity_type === 'business' && e.owner_type === 'player') {
+                return sum + e.revenue_per_tick * 10;
+              }
+              return sum;
+            }, 0);
+            gameState.cash += revenue;
+          }, 60000);
+          break;
+        case 'ai_analytics':
+          gameState.aiAdvisor.enabled = true;
+          generateAISuggestions();
+          break;
+        case 'quantum_computing':
+          gameState.quantumComputer.enabled = true;
+          break;
+        case 'blockchain':
+          gameState.blockchainNetwork.enabled = true;
+          generateGenesisBlock();
+          break;
+        case 'time_manipulation':
+          gameState.timeMachine.enabled = true;
+          break;
+        case 'reality_engine':
+          gameState.multiverseHub.enabled = true;
+          generateParallelUniverses();
+          break;
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('cash').textContent = `$${formatNumber(Math.floor(gameState.cash))}`;
+      document.getElementById('player-level').textContent = gameState.playerLevel;
+      document.getElementById('reputation').textContent = gameState.reputation;
+      
+      // Show prestige level
+      const prestigeIndicator = document.getElementById('prestige-level');
+      if (gameState.prestigeLevel > 0) {
+        prestigeIndicator.textContent = gameState.prestigeLevel;
+        prestigeIndicator.style.display = 'flex';
+      } else {
+        prestigeIndicator.style.display = 'none';
+      }
+      
+      let totalIncome = 0;
+      let businessCount = gameState.entities.filter(e => e.entity_type === 'business' && e.owner_type === 'player').length;
+      let propertyCount = gameState.properties.length;
+      let stockCount = gameState.stocks.length;
+      let staffCount = gameState.staff.length;
+      
+      // Calculate total income from all sources
+      gameState.entities.forEach(entity => {
+        if (entity.entity_type === 'business' && entity.owner_type === 'player') {
+          let income = entity.revenue_per_tick;
+          
+          // Apply staff bonuses
+          const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
+          assignedStaff.forEach(staff => {
+            const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
+            income *= (staffType.efficiency * staff.level * (staff.happiness / 100));
+          });
+          
+          totalIncome += income;
+        }
+      });
+      
+      // Add property income
+      gameState.properties.forEach(property => {
+        totalIncome += property.monthly_rent / (30 * 24 * 3600);
+      });
+      
+      document.getElementById('income').textContent = `$${formatNumber(Math.floor(totalIncome))}/s`;
+      document.getElementById('business-count').textContent = businessCount;
+      document.getElementById('property-count').textContent = propertyCount;
+      document.getElementById('stock-count').textContent = stockCount;
+      document.getElementById('staff-count').textContent = staffCount;
+    }
+
+    // Placeholder implementations for new features
+    function renderAvailableBusinesses() {
+      const container = document.getElementById('available-businesses');
+      const city = CITIES.find(c => c.id === gameState.currentCity);
+      
+      container.innerHTML = '';
+      
+      BUSINESS_TEMPLATES.forEach(template => {
+        const ownedCount = gameState.entities.filter(e => 
+          e.entity_type === 'business' && 
+          e.business_type === template.id && 
+          e.city === gameState.currentCity &&
+          e.owner_type === 'player'
+        ).length;
+        
+        let cost = Math.floor(template.baseCost * city.multiplier * Math.pow(1.15, ownedCount));
+        let revenue = Math.floor(template.baseRevenue * city.multiplier * Math.pow(1.15, ownedCount));
+
+        // Apply market conditions
+        if (gameState.marketConditions.economy === 'boom') {
+          revenue *= 1.3;
+        } else if (gameState.marketConditions.economy === 'recession') {
+          revenue *= 0.7;
+          cost *= 0.8;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${template.name}</div>
+            <div class="card-badge">Owned: ${ownedCount}</div>
+          </div>
+          <div class="card-info">
+            💵 Cost: $${formatNumber(cost)}<br>
+            📊 Revenue: $${formatNumber(revenue)}/sec<br>
+            🌍 City Bonus: ${city.multiplier}x<br>
+            👥 Staff Slots: ${template.staffSlots}<br>
+            📦 Supplies: ${template.supplies.join(', ')}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="showPurchaseModal('${template.id}')" 
+              ${gameState.cash < cost ? 'disabled' : ''}>
+              ${gameState.cash < cost ? 'Need $' + formatNumber(cost - gameState.cash) : 'Purchase'}
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderOwnedBusinesses() {
+      const container = document.getElementById('owned-businesses');
+      const ownedBusinesses = gameState.entities.filter(e => 
+        e.entity_type === 'business' && 
+        e.owner_type === 'player' && 
+        e.city === gameState.currentCity
+      );
+
+      if (ownedBusinesses.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🏢</div>
+            <div>No businesses in this city yet.<br>Start building your empire!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      ownedBusinesses.forEach(business => {
+        const staffCount = gameState.staff.filter(s => s.assigned_business === business.id).length;
+        const template = BUSINESS_TEMPLATES.find(t => t.id === business.business_type);
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${business.name}</div>
+            <div class="card-badge">Lv.${business.level}</div>
+          </div>
+          <div class="card-info">
+            📊 Revenue: $${formatNumber(business.revenue_per_tick)}/sec<br>
+            👥 Staff: ${staffCount}/${template.staffSlots}<br>
+            ⬆️ Upgrade: $${formatNumber(business.upgrade_cost)}<br>
+            💰 Value: $${formatNumber(business.market_value)}<br>
+            📦 Supply Status: ${getSupplyStatus(template.supplies)}
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${Math.min(100, (business.level / 10) * 100)}%"></div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="upgradeBusiness('${business.id}')"
+              ${gameState.cash < business.upgrade_cost ? 'disabled' : ''}>
+              Upgrade
+            </button>
+            <button class="btn btn-warning" onclick="manageStaff('${business.id}')">
+              Staff
+            </button>
+            <button class="btn btn-primary" onclick="manageFranchise('${business.id}')">
+              Franchise
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function getSupplyStatus(supplies) {
+      if (!supplies || supplies.length === 0) return 'N/A';
+      
+      const status = supplies.map(supply => {
+        const supplyData = gameState.supplies[supply];
+        if (!supplyData) return '❓';
+        
+        if (supplyData.quantity > 50) return '✅';
+        if (supplyData.quantity > 20) return '⚠️';
+        return '❌';
+      });
+      
+      return status.join(' ');
+    }
+
+    function renderAvailableProperties() {
+      const container = document.getElementById('available-properties');
+      container.innerHTML = '';
+      
+      PROPERTY_TYPES.forEach(property => {
+        const ownedCount = gameState.properties.filter(p => p.property_type === property.id).length;
+        const cost = property.currentCost || property.baseCost;
+        const rent = property.currentRent || property.baseRent;
+        
+        const div = document.createElement('div');
+        div.className = 'card property-card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${property.name}</div>
+            <div class="card-badge">Owned: ${ownedCount}</div>
+          </div>
+          <div class="card-info">
+            💵 Cost: $${formatNumber(cost)}<br>
+            🏠 Monthly Rent: $${formatNumber(rent)}<br>
+            🏢 Units: ${property.units}<br>
+            📊 ROI: ${((rent * 12 / cost) * 100).toFixed(1)}%
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="purchaseProperty('${property.id}')"
+              ${gameState.cash < cost ? 'disabled' : ''}>
+              Purchase
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderOwnedProperties() {
+      const container = document.getElementById('owned-properties');
+      
+      if (gameState.properties.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🏠</div>
+            <div>No properties owned yet.<br>Start your real estate empire!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      gameState.properties.forEach(property => {
+        const propertyType = PROPERTY_TYPES.find(t => t.id === property.property_type);
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${propertyType.name}</div>
+            <div class="card-badge">${property.city}</div>
+          </div>
+          <div class="card-info">
+            🏠 Monthly Rent: $${formatNumber(property.monthly_rent)}<br>
+            🔧 Condition: ${(property.condition * 100).toFixed(0)}%<br>
+            👥 Occupancy: ${property.occupancy}%<br>
+            💰 Value: $${formatNumber(property.market_value)}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-warning" onclick="renovateProperty('${property.id}')">
+              Renovate
+            </button>
+            <button class="btn btn-primary" onclick="manageProperty('${property.id}')">
+              Manage
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderAvailableStocks() {
+      const container = document.getElementById('available-stocks');
+      container.innerHTML = '';
+      
+      STOCK_COMPANIES.forEach(stock => {
+        const owned = gameState.stocks.find(s => s.company_id === stock.id);
+        const priceChange = stock.priceHistory.length > 1 ? 
+          ((stock.currentPrice - stock.priceHistory[stock.priceHistory.length - 2]) / stock.priceHistory[stock.priceHistory.length - 2] * 100) : 0;
+        
+        const div = document.createElement('div');
+        div.className = 'card stock-card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${stock.symbol}</div>
+            <div class="card-badge ${priceChange >= 0 ? 'btn-success' : 'btn-danger'}">
+              ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%
+            </div>
+          </div>
+          <div class="card-info">
+            💰 Price: $${formatNumber(stock.currentPrice)}<br>
+            📊 Sector: ${stock.sector}<br>
+            📈 Volatility: ${(stock.volatility * 100).toFixed(0)}%<br>
+            💼 Owned: ${owned ? owned.shares : 0} shares
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="buyStock('${stock.id}', 1)">
+              Buy 1
+            </button>
+            <button class="btn btn-primary" onclick="showStockTrading('${stock.id}')">
+              Trade
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderStockPortfolio() {
+      const container = document.getElementById('stock-portfolio');
+      
+      if (gameState.stocks.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div>No stocks owned yet.<br>Start investing!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      gameState.stocks.forEach(stock => {
+        const company = STOCK_COMPANIES.find(c => c.id === stock.company_id);
+        const currentValue = stock.shares * company.currentPrice;
+        const profit = currentValue - stock.total_invested;
+        const profitPercent = (profit / stock.total_invested) * 100;
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${company.symbol}</div>
+            <div class="card-badge ${profit >= 0 ? 'btn-success' : 'btn-danger'}">
+              ${profit >= 0 ? '+' : ''}${profitPercent.toFixed(1)}%
+            </div>
+          </div>
+          <div class="card-info">
+            📊 Shares: ${stock.shares}<br>
+            💰 Current Value: $${formatNumber(currentValue)}<br>
+            📈 Profit/Loss: $${formatNumber(profit)}<br>
+            💵 Avg. Cost: $${formatNumber(stock.total_invested / stock.shares)}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="buyStock('${company.id}', 1)">
+              Buy More
+            </button>
+            <button class="btn btn-danger" onclick="sellStock('${company.id}', 1)">
+              Sell
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderAvailableCrypto() {
+      const container = document.getElementById('available-crypto');
+      container.innerHTML = '';
+      
+      CRYPTOCURRENCIES.forEach(crypto => {
+        const owned = gameState.crypto.find(c => c.crypto_id === crypto.id);
+        const priceChange = crypto.priceHistory.length > 1 ? 
+          ((crypto.currentPrice - crypto.priceHistory[crypto.priceHistory.length - 2]) / crypto.priceHistory[crypto.priceHistory.length - 2] * 100) : 0;
+        
+        const div = document.createElement('div');
+        div.className = 'card crypto-card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${crypto.symbol}</div>
+            <div class="card-badge ${priceChange >= 0 ? 'btn-success' : 'btn-danger'}">
+              ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%
+            </div>
+          </div>
+          <div class="card-info">
+            💰 Price: $${formatNumber(crypto.currentPrice)}<br>
+            📊 Volatility: ${(crypto.volatility * 100).toFixed(0)}%<br>
+            💎 Owned: ${owned ? owned.amount.toFixed(4) : 0} ${crypto.symbol}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="buyCrypto('${crypto.id}', 0.1)">
+              Buy 0.1
+            </button>
+            <button class="btn btn-primary" onclick="showCryptoTrading('${crypto.id}')">
+              Trade
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderCryptoPortfolio() {
+      const container = document.getElementById('crypto-portfolio');
+      
+      if (gameState.crypto.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">₿</div>
+            <div>No crypto owned yet.<br>Start your digital portfolio!</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      gameState.crypto.forEach(crypto => {
+        const currency = CRYPTOCURRENCIES.find(c => c.id === crypto.crypto_id);
+        const currentValue = crypto.amount * currency.currentPrice;
+        const profit = currentValue - crypto.total_invested;
+        const profitPercent = (profit / crypto.total_invested) * 100;
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${currency.symbol}</div>
+            <div class="card-badge ${profit >= 0 ? 'btn-success' : 'btn-danger'}">
+              ${profit >= 0 ? '+' : ''}${profitPercent.toFixed(1)}%
+            </div>
+          </div>
+          <div class="card-info">
+            💎 Amount: ${crypto.amount.toFixed(4)} ${currency.symbol}<br>
+            💰 Current Value: $${formatNumber(currentValue)}<br>
+            📈 Profit/Loss: $${formatNumber(profit)}<br>
+            🎯 Staked: ${crypto.staked ? 'Yes' : 'No'}
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="buyCrypto('${currency.id}', 0.1)">
+              Buy More
+            </button>
+            <button class="btn btn-danger" onclick="sellCrypto('${currency.id}', 0.1)">
+              Sell
+            </button>
+            <button class="btn btn-primary" onclick="stakeCrypto('${currency.id}')">
+              ${crypto.staked ? 'Unstake' : 'Stake'}
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderGlobalOperations() {
+      const container = document.getElementById('global-operations');
+      
+      container.innerHTML = `
+        <div class="card alliance-card">
+          <div class="card-header">
+            <div class="card-title">🤝 Business Alliances</div>
+            <div class="card-badge">${gameState.partnerships.length}</div>
+          </div>
+          <div class="card-info">
+            Active partnerships with global corporations<br>
+            Combined revenue boost: +${gameState.partnerships.length * 5}%
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="formAlliance()">Form Alliance</button>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎓 Mentor System</div>
+            <div class="card-badge">${gameState.mentees.length}</div>
+          </div>
+          <div class="card-info">
+            Mentoring ${gameState.mentees.length} entrepreneurs<br>
+            Reputation bonus: +${gameState.mentees.length * 2} per month
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-success" onclick="findMentee()">Find Mentee</button>
+          </div>
+        </div>
+        
+        <div class="card dynasty-card">
+          <div class="card-header">
+            <div class="card-title">👑 Dynasty System</div>
+            <div class="card-badge">Gen ${gameState.dynasty.generation}</div>
+          </div>
+          <div class="card-info">
+            Current generation: ${gameState.dynasty.generation}<br>
+            Heirs: ${gameState.dynasty.heirs.length}<br>
+            Legacy bonus: +${gameState.dynasty.generation * 10}%
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="planSuccession()">Plan Succession</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Core game functions with enhanced features
+    function purchaseBusiness(templateId) {
+      const template = BUSINESS_TEMPLATES.find(t => t.id === templateId);
+      const city = CITIES.find(c => c.id === gameState.currentCity);
+      const ownedCount = gameState.entities.filter(e => 
+        e.entity_type === 'business' && 
+        e.business_type === templateId && 
+        e.city === gameState.currentCity &&
+        e.owner_type === 'player'
+      ).length;
+      
+      let cost = Math.floor(template.baseCost * city.multiplier * Math.pow(1.15, ownedCount));
+      
+      // Apply prestige bonuses
+      if (gameState.prestigeLevel > 0) {
+        cost = Math.floor(cost * (1 - gameState.prestigeLevel * 0.05));
+      }
+
+      if (gameState.cash < cost) {
+        showToast('Not enough cash!');
+        return;
+      }
+
+      gameState.cash -= cost;
+      gameState.experience += 10;
+
+      let baseRevenue = Math.floor(template.baseRevenue * city.multiplier);
+      
+      // Apply prestige bonuses
+      if (gameState.prestigeLevel > 0) {
+        baseRevenue = Math.floor(baseRevenue * (1 + gameState.prestigeLevel * 0.1));
+      }
+
+      const business = {
+        id: `${templateId}_${gameState.currentCity}_${Date.now()}`,
+        entity_type: 'business',
+        name: template.name,
+        city: gameState.currentCity,
+        owner_type: 'player',
+        owner_id: 'player',
+        business_type: templateId,
+        level: 1,
+        revenue_per_tick: baseRevenue,
+        cost: cost,
+        upgrade_cost: Math.floor(cost * 1.5),
+        market_value: Math.floor(cost * 1.2),
+        created_at: new Date().toISOString(),
+        last_updated: new Date().toISOString(),
+        status: 'active',
+        temp_multiplier: 1.0,
+        reputation: 100,
+        customer_satisfaction: 100,
+        supply_efficiency: 1.0
+      };
+
+      gameState.entities.push(business);
+      saveGame();
+      showToast(`🎉 Purchased ${template.name}!`);
+      closeModal();
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function purchaseProperty(propertyTypeId) {
+      const propertyType = PROPERTY_TYPES.find(t => t.id === propertyTypeId);
+      const cost = propertyType.currentCost || propertyType.baseCost;
+      
+      if (gameState.cash < cost) {
+        showToast('Not enough cash!');
+        return;
+      }
+
+      gameState.cash -= cost;
+      gameState.experience += 15;
+
+      const property = {
+        id: `${propertyTypeId}_${Date.now()}`,
+        property_type: propertyTypeId,
+        city: gameState.currentCity,
+        monthly_rent: propertyType.currentRent || propertyType.baseRent,
+        market_value: cost,
+        condition: 1.0,
+        occupancy: 85 + Math.random() * 15,
+        purchased_at: new Date().toISOString()
+      };
+
+      gameState.properties.push(property);
+      saveGame();
+      showToast(`🏠 Purchased ${propertyType.name}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function buyStock(companyId, shares) {
+      const company = STOCK_COMPANIES.find(c => c.id === companyId);
+      const cost = company.currentPrice * shares;
+      
+      if (gameState.cash < cost) {
+        showToast('Not enough cash!');
+        return;
+      }
+
+      gameState.cash -= cost;
+      gameState.experience += 5;
+
+      let existingStock = gameState.stocks.find(s => s.company_id === companyId);
+      if (existingStock) {
+        existingStock.shares += shares;
+        existingStock.total_invested += cost;
+      } else {
+        gameState.stocks.push({
+          id: `stock_${companyId}_${Date.now()}`,
+          company_id: companyId,
+          shares: shares,
+          total_invested: cost,
+          purchased_at: new Date().toISOString()
+        });
+      }
+
+      saveGame();
+      showToast(`📊 Bought ${shares} shares of ${company.symbol}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function sellStock(companyId, shares) {
+      const company = STOCK_COMPANIES.find(c => c.id === companyId);
+      const stock = gameState.stocks.find(s => s.company_id === companyId);
+      
+      if (!stock || stock.shares < shares) {
+        showToast('Not enough shares!');
+        return;
+      }
+
+      const revenue = company.currentPrice * shares;
+      gameState.cash += revenue;
+      
+      stock.shares -= shares;
+      stock.total_invested -= (stock.total_invested / (stock.shares + shares)) * shares;
+      
+      if (stock.shares === 0) {
+        gameState.stocks = gameState.stocks.filter(s => s.id !== stock.id);
+      }
+
+      saveGame();
+      showToast(`📊 Sold ${shares} shares of ${company.symbol} for $${formatNumber(revenue)}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function buyCrypto(cryptoId, amount) {
+      const crypto = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
+      const cost = crypto.currentPrice * amount;
+      
+      if (gameState.cash < cost) {
+        showToast('Not enough cash!');
+        return;
+      }
+
+      gameState.cash -= cost;
+      gameState.experience += 3;
+
+      let existingCrypto = gameState.crypto.find(c => c.crypto_id === cryptoId);
+      if (existingCrypto) {
+        existingCrypto.amount += amount;
+        existingCrypto.total_invested += cost;
+      } else {
+        gameState.crypto.push({
+          id: `crypto_${cryptoId}_${Date.now()}`,
+          crypto_id: cryptoId,
+          amount: amount,
+          total_invested: cost,
+          staked: false,
+          purchased_at: new Date().toISOString()
+        });
+      }
+
+      saveGame();
+      showToast(`₿ Bought ${amount} ${crypto.symbol}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function sellCrypto(cryptoId, amount) {
+      const currency = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
+      const crypto = gameState.crypto.find(c => c.crypto_id === cryptoId);
+      
+      if (!crypto || crypto.amount < amount) {
+        showToast('Not enough crypto!');
+        return;
+      }
+
+      const revenue = currency.currentPrice * amount;
+      gameState.cash += revenue;
+      
+      crypto.amount -= amount;
+      crypto.total_invested -= (crypto.total_invested / (crypto.amount + amount)) * amount;
+      
+      if (crypto.amount < 0.0001) {
+        gameState.crypto = gameState.crypto.filter(c => c.id !== crypto.id);
+      }
+
+      saveGame();
+      showToast(`₿ Sold ${amount} ${currency.symbol} for $${formatNumber(revenue)}!`);
+      renderCurrentTab();
+      updateStats();
+    }
+
+    function stakeCrypto(cryptoId) {
+      const crypto = gameState.crypto.find(c => c.crypto_id === cryptoId);
+      if (!crypto) return;
+      
+      crypto.staked = !crypto.staked;
+      const currency = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
+      
+      saveGame();
+      showToast(`🎯 ${crypto.staked ? 'Staked' : 'Unstaked'} ${currency.symbol}!`);
+      renderCurrentTab();
+    }
+
+    // Enhanced helper functions
+    function formatNumber(num) {
+      if (num >= 1000000000000000) return (num / 1000000000000000).toFixed(1) + 'Q';
+      if (num >= 1000000000000) return (num / 1000000000000).toFixed(1) + 'T';
+      if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toFixed(0);
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function showModal(title, content) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.id = 'current-modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">${title}</h2>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="modal-body">
+            ${content}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('current-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    function showAchievementPopup(text) {
+      const popup = document.createElement('div');
+      popup.className = 'achievement-popup';
+      popup.innerHTML = `
+        <div style="font-size: 24px; margin-bottom: 10px;">🏆</div>
+        <div style="font-weight: bold; font-size: 16px;">${text}</div>
+      `;
+      
+      document.body.appendChild(popup);
+      
+      setTimeout(() => {
+        popup.remove();
+      }, 3000);
+    }
+
+    // Placeholder functions for advanced features
+    function renderMiniGame() {
+      return `
+        <div class="mini-game" id="mini-game">
+          <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">🎯 Quick Boost</div>
+          <div style="font-size: 11px; margin-bottom: 12px;">Tap to earn instant cash!</div>
+          <div class="tap-area" onclick="playMiniGame()">💰</div>
+          <div style="font-size: 11px;">Taps remaining: <span id="taps-remaining">10</span></div>
+        </div>
+      `;
+    }
+
+    function playMiniGame() {
+      const tapsElement = document.getElementById('taps-remaining');
+      let taps = parseInt(tapsElement.textContent);
+      
+      if (taps > 0) {
+        const earnings = Math.floor(gameState.cash * 0.01);
+        gameState.cash += earnings;
+        taps--;
+        tapsElement.textContent = taps;
+        
+        showToast(`+$${formatNumber(earnings)}`);
+        updateStats();
+        
+        if (taps === 0) {
+          setTimeout(() => {
+            tapsElement.textContent = '10';
+          }, 60000);
+        }
+      }
+    }
+
+    // Save/Load system
+    function saveGame() {
+      try {
+        localStorage.setItem('ultimateBusinessEmpire', JSON.stringify(gameState));
+      } catch (e) {
+        console.log('Could not save game state');
+      }
+    }
+
+    function loadGame() {
+      try {
+        const saved = localStorage.getItem('ultimateBusinessEmpire');
+        if (saved) {
+          const loadedState = JSON.parse(saved);
+          gameState = { ...gameState, ...loadedState };
+          gameState.lastTick = Date.now();
+          
+          // Calculate offline progress
+          const offlineTime = Date.now() - (loadedState.lastTick || Date.now());
+          if (offlineTime > 60000) {
+            calculateOfflineProgress(offlineTime);
+          }
+        }
+      } catch (e) {
+        console.log('Could not load game state');
+      }
+    }
+
+    function calculateOfflineProgress(offlineTime) {
+      const offlineHours = offlineTime / (1000 * 60 * 60);
+      let offlineEarnings = 0;
+      
+      gameState.entities.forEach(entity => {
+        if (entity.entity_type === 'business' && entity.owner_type === 'player') {
+          offlineEarnings += entity.revenue_per_tick * offlineHours * 3600 * 0.5;
+        }
+      });
+
+      gameState.properties.forEach(property => {
+        offlineEarnings += (property.monthly_rent / (30 * 24)) * offlineHours;
+      });
+
+      if (offlineEarnings > 0) {
+        gameState.cash += offlineEarnings;
+        showModal('Welcome Back!', `
+          <div style="text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 20px;">💰</div>
+            <div style="font-size: 20px; margin-bottom: 10px;">You were away for ${Math.floor(offlineHours)} hours</div>
+            <div style="font-size: 16px; margin-bottom: 20px;">Your empire earned: $${formatNumber(offlineEarnings)}</div>
+            <button class="btn btn-primary" onclick="closeModal()">Collect Earnings</button>
+          </div>
+        `);
+      }
+    }
+
+    function showWelcomeMessage() {
+      setTimeout(() => {
+        if (gameState.prestigeLevel > 0) {
+          showToast(`Welcome back, Prestige Level ${gameState.prestigeLevel} Tycoon!`);
+        } else {
+          showToast('Welcome to Ultimate Business Empire! The most advanced business simulation ever created.');
+        }
+      }, 1000);
+    }
+
+    function generateCompetitors() {
+      if (gameState.competitors.length === 0) {
+        const competitorNames = ['TechCorp', 'GlobalVentures', 'MegaBusiness', 'InnovateCo', 'FutureTech', 'QuantumDynamics', 'SpaceIndustries'];
+        for (let i = 0; i < 5; i++) {
+          gameState.competitors.push({
+            id: `competitor_${i}`,
+            name: competitorNames[i],
+            level: Math.floor(Math.random() * 10) + 1,
+            businesses: Math.floor(Math.random() * 20) + 1,
+            netWorth: Math.floor(Math.random() * 10000000) + 1000000,
+            reputation: Math.floor(Math.random() * 500) + 100
+          });
+        }
+      }
+    }
+
+    function checkSeasonalEvents() {
+      const now = new Date();
+      const month = now.getMonth();
+      
+      if (month === 11) {
+        gameState.seasonalEvent = {
+          name: 'Holiday Shopping Boom',
+          effect: 'retail_bonus',
+          multiplier: 2.0,
+          duration: 30
+        };
+        document.getElementById('seasonal-banner').style.display = 'block';
+      } else if (month === 0) {
+        gameState.seasonalEvent = {
+          name: 'New Year Tech Surge',
+          effect: 'tech_bonus',
+          multiplier: 1.5,
+          duration: 15
+        };
+      }
+    }
+
+    function generateRandomEvent() {
+      const events = [
+        {
+          id: 'tech_boom',
+          name: 'Tech Boom',
+          icon: '🚀',
+          description: 'A new technology trend is emerging! Tech businesses get 50% bonus for 5 minutes.',
+          effect: 'tech_bonus',
+          multiplier: 1.5,
+          duration: 300,
+          cost: 0,
+          reward: 0
+        },
+        {
+          id: 'market_crash',
+          name: 'Market Volatility',
+          icon: '📉',
+          description: 'Market uncertainty! All investments fluctuate wildly for 3 minutes.',
+          effect: 'market_volatility',
+          multiplier: 1.0,
+          duration: 180,
+          cost: 0,
+          reward: 0
+        },
+        {
+          id: 'alien_contact',
+          name: 'First Contact',
+          icon: '👽',
+          description: 'Aliens have made contact! Space businesses get 1000% bonus for 1 minute.',
+          effect: 'space_bonus',
+          multiplier: 10.0,
+          duration: 60,
+          cost: 0,
+          reward: 0
+        }
+      ];
+
+      const event = events[Math.floor(Math.random() * events.length)];
+      event.id = `${event.id}_${Date.now()}`;
+      
+      gameState.events.push(event);
+      showToast(`🎲 New event: ${event.name}!`);
+    }
+
+    function checkLevelUp() {
+      const requiredExp = gameState.playerLevel * 100;
+      if (gameState.experience >= requiredExp) {
+        gameState.playerLevel++;
+        gameState.experience = 0;
+        
+        showAchievementPopup(`🎉 Level Up! You're now level ${gameState.playerLevel}!`);
+        
+        // Unlock new features at certain levels
+        if (gameState.playerLevel === 10) {
+          showToast('🔓 Unlocked: Advanced Trading!');
+        } else if (gameState.playerLevel === 25) {
+          showToast('🔓 Unlocked: Space Operations!');
+          gameState.vrInterface.enabled = true;
+        } else if (gameState.playerLevel === 50) {
+          showToast('🔓 Unlocked: Time Manipulation!');
+        } else if (gameState.playerLevel === 100) {
+          showToast('🔓 Unlocked: Multiverse Hub!');
+        }
+        
+        renderCityGrid();
+        updateStats();
+        saveGame();
+      }
+    }
+
+    function checkAchievements() {
+      const newAchievements = [];
+
+      // Business achievements
+      const myBusinesses = gameState.entities.filter(e => e.entity_type === 'business' && e.owner_type === 'player');
+      if (myBusinesses.length >= 1 && !gameState.achievements.includes('first_business')) {
+        gameState.achievements.push('first_business');
+        newAchievements.push('🏢 First Business Owner!');
+      }
+      if (myBusinesses.length >= 100 && !gameState.achievements.includes('business_mogul')) {
+        gameState.achievements.push('business_mogul');
+        newAchievements.push('🏢 Business Mogul - 100 Businesses!');
+      }
+
+      // Wealth achievements
+      if (gameState.cash >= 1000000 && !gameState.achievements.includes('millionaire')) {
+        gameState.achievements.push('millionaire');
+        newAchievements.push('💰 Millionaire Status!');
+      }
+      if (gameState.cash >= 1
+
+            // Wealth achievements
+      if (gameState.cash >= 1000000 && !gameState.achievements.includes('millionaire')) {
+        gameState.achievements.push('millionaire');
+        newAchievements.push('💰 Millionaire Status!');
+      }
+      if (gameState.cash >= 1000000000 && !gameState.achievements.includes('billionaire')) {
+        gameState.achievements.push('billionaire');
+        newAchievements.push('💎 Billionaire Status!');
+      }
+      if (gameState.cash >= 1000000000000 && !gameState.achievements.includes('trillionaire')) {
+        gameState.achievements.push('trillionaire');
+        newAchievements.push('🌟 Trillionaire Status!');
+      }
+
+      // Property achievements
+      if (gameState.properties.length >= 1 && !gameState.achievements.includes('property_owner')) {
+        gameState.achievements.push('property_owner');
+        newAchievements.push('🏠 Property Owner!');
+      }
+      if (gameState.properties.length >= 50 && !gameState.achievements.includes('real_estate_mogul')) {
+        gameState.achievements.push('real_estate_mogul');
+        newAchievements.push('🏢 Real Estate Mogul!');
+      }
+
+      // Investment achievements
+      if (gameState.stocks.length >= 1 && !gameState.achievements.includes('investor')) {
+        gameState.achievements.push('investor');
+        newAchievements.push('📊 First Investor!');
+      }
+      if (gameState.crypto.length >= 1 && !gameState.achievements.includes('crypto_trader')) {
+        gameState.achievements.push('crypto_trader');
+        newAchievements.push('₿ Crypto Trader!');
+      }
+
+      // Global achievements
+      const citiesWithBusinesses = [...new Set(myBusinesses.map(b => b.city))];
+      if (citiesWithBusinesses.length >= 3 && !gameState.achievements.includes('global_presence')) {
+        gameState.achievements.push('global_presence');
+        newAchievements.push('🌍 Global Presence!');
+      }
+      if (citiesWithBusinesses.length >= 8 && !gameState.achievements.includes('world_domination')) {
+        gameState.achievements.push('world_domination');
+        newAchievements.push('👑 World Domination!');
+      }
+
+      // Staff achievements
+      if (gameState.staff.length >= 10 && !gameState.achievements.includes('team_builder')) {
+        gameState.achievements.push('team_builder');
+        newAchievements.push('👥 Team Builder!');
+      }
+      if (gameState.staff.length >= 100 && !gameState.achievements.includes('corporate_empire')) {
+        gameState.achievements.push('corporate_empire');
+        newAchievements.push('🏢 Corporate Empire!');
+      }
+
+      // Research achievements
+      const completedResearch = gameState.research.filter(r => r.status === 'completed');
+      if (completedResearch.length >= 1 && !gameState.achievements.includes('researcher')) {
+        gameState.achievements.push('researcher');
+        newAchievements.push('🔬 Researcher!');
+      }
+      if (completedResearch.length >= 5 && !gameState.achievements.includes('innovation_leader')) {
+        gameState.achievements.push('innovation_leader');
+        newAchievements.push('💡 Innovation Leader!');
+      }
+
+      // Special achievements
+      if (gameState.prestigeLevel >= 1 && !gameState.achievements.includes('prestige_master')) {
+        gameState.achievements.push('prestige_master');
+        newAchievements.push('⭐ Prestige Master!');
+      }
+      if (gameState.spaceAssets.length >= 1 && !gameState.achievements.includes('space_pioneer')) {
+        gameState.achievements.push('space_pioneer');
+        newAchievements.push('🚀 Space Pioneer!');
+      }
+      if (gameState.timeMachine.enabled && !gameState.achievements.includes('time_master')) {
+        gameState.achievements.push('time_master');
+        newAchievements.push('⏰ Time Master!');
+      }
+      if (gameState.multiverseHub.enabled && !gameState.achievements.includes('multiverse_emperor')) {
+        gameState.achievements.push('multiverse_emperor');
+        newAchievements.push('🌌 Multiverse Emperor!');
+      }
+
+      // Show new achievements
+      newAchievements.forEach(achievement => {
+        showAchievementPopup(achievement);
+        gameState.reputation += 10;
+      });
+
+      if (newAchievements.length > 0) {
+        saveGame();
+      }
+    }
+
+    // Initialize the game when page loads
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
