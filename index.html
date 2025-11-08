@@ -3401,6 +3401,139 @@
       console.log('All systems initialized successfully');
     }
 
+       // Quick trading functions
+    function quickBuyStocks() {
+      const investmentAmount = Math.floor(gameState.cash * 0.2); // 20% of cash
+      
+      if (investmentAmount < 100) {
+        showToast('Need at least $100 to quick buy stocks!');
+        return;
+      }
+      
+      // Use first available stock for simplicity
+      const bestStock = STOCK_COMPANIES[0];
+      const shares = Math.floor(investmentAmount / bestStock.currentPrice);
+      
+      if (shares > 0) {
+        buyStock(bestStock.id, shares);
+        showToast(`📈 Quick bought ${shares} shares of ${bestStock.symbol}!`);
+      }
+    }
+
+    function quickSellStocks() {
+      const ownedStocks = gameState.stocks.filter(s => s.shares > 0);
+      
+      if (ownedStocks.length === 0) {
+        showToast('No stocks to sell!');
+        return;
+      }
+      
+      let totalValue = 0;
+      ownedStocks.forEach(ownedStock => {
+        const stock = STOCK_COMPANIES.find(s => s.id === ownedStock.company_id);
+        if (stock) {
+          totalValue += ownedStock.shares * stock.currentPrice;
+          sellStock(ownedStock.company_id, ownedStock.shares);
+        }
+      });
+      
+      if (totalValue > 0) {
+        showToast(`📉 Quick sold stocks for $${formatNumber(totalValue)}!`);
+      }
+    }
+
+    function showAdvancedTrading() {
+      showModal('📊 Advanced Trading Hub', `
+        <div class="card-info">
+          <strong>Portfolio Overview:</strong><br>
+          💰 Available Cash: $${formatNumber(gameState.cash)}<br>
+          📊 Total Portfolio Value: $${formatNumber(calculatePortfolioValue())}<br><br>
+          
+          <strong>Quick Trading:</strong><br>
+          Use these buttons for rapid market operations based on current conditions.
+        </div>
+        
+        <div class="card-actions" style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <button class="btn btn-success" onclick="quickBuyStocks(); closeModal();">📈 Quick Buy Stocks</button>
+          <button class="btn btn-danger" onclick="quickSellStocks(); closeModal();">📉 Quick Sell Stocks</button>
+          <button class="btn btn-crypto" onclick="quickBuyCrypto(); closeModal();">₿ Quick Buy Crypto</button>
+          <button class="btn btn-warning" onclick="quickSellCrypto(); closeModal();">💰 Quick Sell Crypto</button>
+          <button class="btn btn-secondary" onclick="closeModal();">❌ Close</button>
+        </div>
+      `);
+    }
+
+    function quickBuyCrypto() {
+      const investmentAmount = Math.floor(gameState.cash * 0.15); // 15% of cash
+      
+      if (investmentAmount < 50) {
+        showToast('Need at least $50 to quick buy crypto!');
+        return;
+      }
+      
+      // Use first available crypto for simplicity
+      const crypto = CRYPTOCURRENCIES[0];
+      const amount = investmentAmount / crypto.currentPrice;
+      
+      if (amount > 0) {
+        buyCrypto(crypto.id, amount);
+        showToast(`₿ Quick bought ${amount.toFixed(4)} ${crypto.symbol}!`);
+      }
+    }
+
+    function quickSellCrypto() {
+      const ownedCrypto = gameState.crypto.filter(c => c.amount > 0);
+      
+      if (ownedCrypto.length === 0) {
+        showToast('No crypto to sell!');
+        return;
+      }
+      
+      let totalValue = 0;
+      ownedCrypto.forEach(ownedCrypto => {
+        const crypto = CRYPTOCURRENCIES.find(c => c.id === ownedCrypto.crypto_id);
+        if (crypto && !ownedCrypto.staked) {
+          totalValue += ownedCrypto.amount * crypto.currentPrice;
+          sellCrypto(ownedCrypto.crypto_id, ownedCrypto.amount);
+        }
+      });
+      
+      if (totalValue > 0) {
+        showToast(`₿ Quick sold crypto for $${formatNumber(totalValue)}!`);
+      } else {
+        showToast('No unstaked crypto available to sell!');
+      }
+    }
+
+    function calculatePortfolioValue() {
+      let total = gameState.cash;
+      
+      // Add stock values
+      gameState.stocks.forEach(stock => {
+        const company = STOCK_COMPANIES.find(c => c.id === stock.company_id);
+        if (company) {
+          total += stock.shares * company.currentPrice;
+        }
+      });
+      
+      // Add crypto values
+      gameState.crypto.forEach(crypto => {
+        const currency = CRYPTOCURRENCIES.find(c => c.id === crypto.crypto_id);
+        if (currency) {
+          total += crypto.amount * currency.currentPrice;
+        }
+      });
+      
+      return total;
+    }
+
+    // Make all trading functions globally accessible
+    window.quickBuyStocks = quickBuyStocks;
+    window.quickSellStocks = quickSellStocks;
+    window.showAdvancedTrading = showAdvancedTrading;
+    window.quickBuyCrypto = quickBuyCrypto;
+    window.quickSellCrypto = quickSellCrypto;
+    window.calculatePortfolioValue = calculatePortfolioValue;
     // Add to global scope
     window.showUnlockGuidance = showUnlockGuidance;
     window.unlockCity = unlockCity;
