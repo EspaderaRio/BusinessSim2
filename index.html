@@ -3209,6 +3209,202 @@
       console.log('All systems initialized successfully');
     }
 
+       // City unlock guidance function
+    function showUnlockGuidance(cityId) {
+      const city = CITIES.find(c => c.id === cityId);
+      if (!city) return;
+      
+      const requiredLevel = city.unlockLevel;
+      const currentLevel = gameState.playerLevel;
+      const expNeeded = (requiredLevel - currentLevel) * 1000;
+      
+      showModal(`🔒 Unlock ${city.name}`, `
+        <div class="card-info">
+          <strong>City Requirements:</strong><br>
+          🎯 Required Level: ${requiredLevel}<br>
+          📊 Your Level: ${currentLevel}<br>
+          ⭐ Experience Needed: ${expNeeded > 0 ? formatNumber(expNeeded) : '0'}<br>
+          💰 Unlock Cost: $${formatNumber(city.unlockCost)}<br><br>
+          
+          <strong>How to Level Up:</strong><br>
+          🏢 Purchase businesses (+10 XP each)<br>
+          ⬆️ Upgrade businesses (+15 XP each)<br>
+          👥 Hire staff (+5 XP each)<br>
+          🔬 Complete research (+20 XP each)<br>
+          🏆 Complete achievements (varies)<br><br>
+          
+          <strong>City Benefits:</strong><br>
+          📈 Revenue Multiplier: ${city.multiplier}x<br>
+          🌟 Special Features: ${city.specialFeatures || 'Standard business operations'}
+        </div>
+        
+        <div class="card-actions" style="margin-top: 20px;">
+          ${currentLevel >= requiredLevel && gameState.cash >= city.unlockCost ? 
+            `<button class="btn btn-primary" onclick="unlockCity('${cityId}'); closeModal();">
+              🔓 Unlock City ($${formatNumber(city.unlockCost)})
+            </button>` : 
+            `<button class="btn btn-secondary" disabled>
+              ${currentLevel < requiredLevel ? 'Level Up Required' : 'Insufficient Funds'}
+            </button>`
+          }
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      `);
+    }
+
+    // City unlock function
+    function unlockCity(cityId) {
+      const city = CITIES.find(c => c.id === cityId);
+      if (!city) return;
+      
+      if (gameState.playerLevel < city.unlockLevel) {
+        showToast(`Need level ${city.unlockLevel} to unlock ${city.name}!`);
+        return;
+      }
+      
+      if (gameState.cash < city.unlockCost) {
+        showToast('Not enough cash to unlock city!');
+        return;
+      }
+      
+      gameState.cash -= city.unlockCost;
+      if (!gameState.unlockedCities) gameState.unlockedCities = [];
+      gameState.unlockedCities.push(cityId);
+      gameState.experience += 50;
+      
+      saveGame();
+      showToast(`🔓 Unlocked ${city.name}!`);
+      renderCityGrid();
+      updateStats();
+    }
+
+    // Initialize price histories for stocks and crypto
+    function initializePriceHistories() {
+      STOCK_COMPANIES.forEach(stock => {
+        if (!stock.priceHistory) {
+          stock.priceHistory = [stock.currentPrice];
+        }
+      });
+      
+      CRYPTOCURRENCIES.forEach(crypto => {
+        if (!crypto.priceHistory) {
+          crypto.priceHistory = [crypto.currentPrice];
+        }
+      });
+    }
+
+    // Fixed price update functions
+    function updateStockPrices() {
+      STOCK_COMPANIES.forEach(stock => {
+        // Initialize priceHistory if it doesn't exist
+        if (!stock.priceHistory) {
+          stock.priceHistory = [stock.currentPrice];
+        }
+        
+        const change = (Math.random() - 0.5) * stock.volatility * stock.currentPrice;
+        stock.currentPrice = Math.max(1, stock.currentPrice + change);
+        stock.priceHistory.push(stock.currentPrice);
+        
+        // Keep only last 100 price points
+        if (stock.priceHistory.length > 100) {
+          stock.priceHistory.shift();
+        }
+      });
+    }
+
+    function updateCryptoPrices() {
+      CRYPTOCURRENCIES.forEach(crypto => {
+        // Initialize priceHistory if it doesn't exist
+        if (!crypto.priceHistory) {
+          crypto.priceHistory = [crypto.currentPrice];
+        }
+        
+        const change = (Math.random() - 0.5) * crypto.volatility * crypto.currentPrice;
+        crypto.currentPrice = Math.max(0.01, crypto.currentPrice + change);
+        crypto.priceHistory.push(crypto.currentPrice);
+        
+        // Keep only last 100 price points
+        if (crypto.priceHistory.length > 100) {
+          crypto.priceHistory.shift();
+        }
+      });
+    }
+
+    // Update initialization to include price histories
+    function initializeAllSystems() {
+      initializeMarketConditions();
+      initializePriceHistories();
+      
+      // Initialize other missing properties
+      if (!gameState.entities) gameState.entities = [];
+      if (!gameState.properties) gameState.properties = [];
+      if (!gameState.stocks) gameState.stocks = [];
+      if (!gameState.crypto) gameState.crypto = [];
+      if (!gameState.staff) gameState.staff = [];
+      if (!gameState.research) gameState.research = [];
+      if (!gameState.achievements) gameState.achievements = [];
+      if (!gameState.franchises) gameState.franchises = [];
+      if (!gameState.competitors) gameState.competitors = [];
+      if (!gameState.unlockedCities) gameState.unlockedCities = ['new_york'];
+      
+      // Initialize advanced systems
+      if (!gameState.aiAdvisor) {
+        gameState.aiAdvisor = {
+          enabled: false,
+          suggestions: [],
+          last_update: Date.now()
+        };
+      }
+      
+      if (!gameState.quantumComputer) {
+        gameState.quantumComputer = {
+          enabled: false,
+          processing: [],
+          qubits: 0
+        };
+      }
+      
+      if (!gameState.blockchainNetwork) {
+        gameState.blockchainNetwork = {
+          enabled: false,
+          blocks: [],
+          mining_power: 0
+        };
+      }
+      
+      if (!gameState.spaceAssets) gameState.spaceAssets = [];
+      if (!gameState.timeMachine) {
+        gameState.timeMachine = {
+          enabled: false,
+          fuel: 0,
+          destinations: []
+        };
+      }
+      
+      if (!gameState.multiverseHub) {
+        gameState.multiverseHub = {
+          enabled: false,
+          universes: [],
+          energy: 0
+        };
+      }
+      
+      // Initialize prestige system
+      if (gameState.prestigeLevel === undefined) gameState.prestigeLevel = 0;
+      if (gameState.prestigePoints === undefined) gameState.prestigePoints = 0;
+      
+      // Initialize player stats
+      if (gameState.playerLevel === undefined) gameState.playerLevel = 1;
+      if (gameState.experience === undefined) gameState.experience = 0;
+      if (gameState.reputation === undefined) gameState.reputation = 0;
+      
+      console.log('All systems initialized successfully');
+    }
+
+    // Add to global scope
+    window.showUnlockGuidance = showUnlockGuidance;
+    window.unlockCity = unlockCity;
+    window.initializePriceHistories = initializePriceHistories;
     // Make the initialization function globally accessible
     window.initializeMarketConditions = initializeMarketConditions;
     // Make all functions globally accessible
