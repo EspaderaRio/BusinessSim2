@@ -1627,6 +1627,9 @@
       initializeTimeMachine();
       initializeMultiverse();
     }
+   
+document.getElementById('income').textContent = `$${formatNumber(gameState.income)}/s`;
+document.getElementById('cash').textContent = `$${formatNumber(gameState.cash)}`;
 
     function initializeMarket() {
       gameState.marketConditions = {
@@ -4787,6 +4790,43 @@
       renderCurrentTab();
     }
 
+   function updateIncome() {
+  try {
+    // Check if required objects exist
+    if (!gameState || !gameState.entities || !BUSINESS_TEMPLATES) {
+      console.error('Required game data not initialized');
+      return;
+    }
+
+    // Filter owned businesses
+    const owned = gameState.entities.filter(e => 
+      e && e.entity_type === 'business' && e.owner_type === 'player'
+    );
+    
+    // Calculate income with error checking
+    gameState.income = owned.reduce((sum, biz) => {
+      if (!biz || !biz.business_type) return sum;
+      
+      const type = BUSINESS_TEMPLATES.find(t => t && t.id === biz.business_type);
+      const revenue = type && typeof type.baseRevenue === 'number' ? type.baseRevenue : 0;
+      return sum + revenue;
+    }, 0);
+    
+    // Update DOM element if it exists
+    const incomeElement = document.getElementById('income');
+    if (incomeElement) {
+      const formattedIncome = typeof formatNumber === 'function' 
+        ? formatNumber(gameState.income) 
+        : gameState.income.toLocaleString();
+      incomeElement.textContent = `$${formattedIncome}/s`;
+    } else {
+      console.warn('Income display element not found');
+    }
+    
+  } catch (error) {
+    console.error('Error updating income:', error);
+  }
+}
     // Enhanced helper functions
     function formatNumber(num) {
       // Handle null, undefined, or non-numeric values
