@@ -1628,8 +1628,8 @@
       initializeMultiverse();
     }
    
-document.getElementById('income').textContent = `$${formatNumber(gameState.income)}/s`;
-document.getElementById('cash').textContent = `$${formatNumber(gameState.cash)}`;
+
+
 
     function initializeMarket() {
       gameState.marketConditions = {
@@ -4103,6 +4103,8 @@ document.getElementById('cash').textContent = `$${formatNumber(gameState.cash)}`
     }
 
     function updateStats() {
+      document.getElementById('income').textContent = `$${formatNumber(gameState.income)}/s`;
+
       document.getElementById('cash').textContent = `$${formatNumber(Math.floor(gameState.cash))}`;
       document.getElementById('player-level').textContent = gameState.playerLevel;
       document.getElementById('reputation').textContent = gameState.reputation;
@@ -4149,6 +4151,7 @@ document.getElementById('cash').textContent = `$${formatNumber(gameState.cash)}`
       document.getElementById('stock-count').textContent = stockCount;
       document.getElementById('staff-count').textContent = staffCount;
     }
+   
 
     // Placeholder implementations for new features
     function renderAvailableBusinesses() {
