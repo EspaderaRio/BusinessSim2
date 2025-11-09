@@ -4040,7 +4040,7 @@ function showStockTrading(stockId) {
         if (isUnlocked) {
           div.onclick = () => switchCity(city.id);
         } else {
-          div.onclick = () => showUnlockGuidance(cityId);
+          div.onclick = () => showUnlockGuidance(city.id);
         }
         
         container.appendChild(div);
