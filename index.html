@@ -4856,19 +4856,14 @@ function renderStockMarketOverview() {
       e && e.entity_type === 'business' && e.owner_type === 'player'
     );
     
-    // Calculate income with error checking
-   gameState.income = owned.reduce((sum, biz) => {
-  return sum + (typeof biz.revenue_per_tick === 'number' ? biz.revenue_per_tick : 0);
-}, 0);
-
-      
-     const type = BUSINESS_TEMPLATES.find(t => t && t.id === biz.business_type);
+gameState.income = owned.reduce((sum, biz) => {
+  const type = BUSINESS_TEMPLATES.find(t => t && t.id === biz.business_type);
   console.log(`🔍 Matching template for ${biz.business_type}:`, type);
 
-  const revenue = type && typeof type.baseRevenue === 'number' ? type.baseRevenue : 0;
+  const revenue = typeof biz.revenue_per_tick === 'number' ? biz.revenue_per_tick : 0;
   return sum + revenue;
 }, 0);
-    
+
     // Update DOM element if it exists
     const incomeElement = document.getElementById('income');
     if (incomeElement) {
