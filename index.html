@@ -3976,23 +3976,23 @@ function startGameLoop() {
     // 🏢 Business income
     gameState.entities.forEach(entity => {
       if (entity.entity_type === 'business' && entity.owner_type === 'player') {
-        let income = typeof entity.revenue_per_tick === 'number' ? entity.revenue_per_tick : 0;
+        let income = isFinite(entity.revenue_per_tick) ? entity.revenue_per_tick : 0;
 
         const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
         assignedStaff.forEach(staff => {
           const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
-          if (staffType) {
+          if (staffType && isFinite(staffType.efficiency) && isFinite(staff.level) && isFinite(staff.happiness)) {
             income *= staffType.efficiency * staff.level * (staff.happiness / 100);
           }
         });
 
-        income *= gameState.weather.effect;
+        income *= isFinite(gameState.weather.effect) ? gameState.weather.effect : 1;
 
         if (gameState.timeOfDay === 'night' && entity.business_type === 'restaurant') {
           income *= 1.2;
         }
 
-        income *= entity.temp_multiplier || 1.0;
+        income *= isFinite(entity.temp_multiplier) ? entity.temp_multiplier : 1;
 
         totalIncome += income;
 
@@ -4002,13 +4002,16 @@ function startGameLoop() {
 
     // 🏠 Property income
     gameState.properties.forEach(property => {
-      totalIncome += property.monthly_rent / (30 * 24 * 3600);
+      const rent = property.monthly_rent;
+      if (isFinite(rent)) {
+        totalIncome += rent / (30 * 24 * 3600);
+      }
     });
 
     // 📊 Stock dividends
     gameState.stocks.forEach(stock => {
       const company = STOCK_COMPANIES.find(c => c.id === stock.company_id);
-      if (company) {
+      if (company && isFinite(stock.shares) && isFinite(company.currentPrice)) {
         const dividend = stock.shares * company.currentPrice * 0.0001;
         totalIncome += dividend / (24 * 3600);
       }
@@ -4016,7 +4019,7 @@ function startGameLoop() {
 
     // 🪙 Crypto staking
     gameState.crypto.forEach(crypto => {
-      if (crypto.staked) {
+      if (crypto.staked && isFinite(crypto.amount)) {
         const reward = crypto.amount * 0.0001;
         totalIncome += reward / (24 * 3600);
       }
@@ -4037,25 +4040,29 @@ function startGameLoop() {
     gameState.cash += totalIncome * deltaTime;
     gameState.totalEarnings += totalIncome * deltaTime;
 
+    // ✅ Update UI and log tick
+    updateStats();
     console.log(`💸 Tick income: ${formatNumber(totalIncome, { currency: '$' })} → Cash: ${formatNumber(gameState.cash, { currency: '$' })}`);
 
-    updateStats();
-
+    // 🎲 Random events
     if (Math.random() < 0.0001 && gameState.events.length === 0) {
       generateRandomEvent();
     }
 
+    // 💾 Periodic save
     if (Math.random() < 0.01) {
       saveGame();
     }
   }, 100);
 
+  // 🔄 Secondary systems
   setInterval(() => {
     checkLevelUp();
     checkAchievements();
     updateMarketConditions();
     updateStaffHappiness();
     processResearch();
+    // Optional: updateIncome(); // if you want to recalculate separately
   }, 5000);
 }
 
