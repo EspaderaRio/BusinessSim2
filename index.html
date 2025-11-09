@@ -3978,7 +3978,6 @@ function startGameLoop() {
       if (entity.entity_type === 'business' && entity.owner_type === 'player') {
         let income = typeof entity.revenue_per_tick === 'number' ? entity.revenue_per_tick : 0;
 
-        // 👥 Staff bonuses
         const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
         assignedStaff.forEach(staff => {
           const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
@@ -3987,28 +3986,23 @@ function startGameLoop() {
           }
         });
 
-        // 🌦️ Weather effects
         income *= gameState.weather.effect;
 
-        // 🌙 Time of day effects
         if (gameState.timeOfDay === 'night' && entity.business_type === 'restaurant') {
           income *= 1.2;
         }
 
-        // 🔁 Temporary multipliers
         income *= entity.temp_multiplier || 1.0;
 
         totalIncome += income;
 
-        // 🧪 Debug per business
         console.log(`🏢 ${entity.name || entity.id} → ${formatNumber(income, { currency: '$' })}/s`);
       }
     });
 
     // 🏠 Property income
     gameState.properties.forEach(property => {
-      const rentPerSecond = property.monthly_rent / (30 * 24 * 3600);
-      totalIncome += rentPerSecond;
+      totalIncome += property.monthly_rent / (30 * 24 * 3600);
     });
 
     // 📊 Stock dividends
@@ -4028,28 +4022,34 @@ function startGameLoop() {
       }
     });
 
-    // ✅ Final income assignment
+    // ✅ Validate before applying income
+    if (!isFinite(deltaTime) || isNaN(deltaTime)) {
+      console.warn("⚠️ Invalid deltaTime — skipping tick");
+      return;
+    }
+
+    if (!isFinite(totalIncome) || isNaN(totalIncome)) {
+      console.warn("⚠️ Invalid totalIncome — skipping tick");
+      return;
+    }
+
     gameState.income = totalIncome;
     gameState.cash += totalIncome * deltaTime;
     gameState.totalEarnings += totalIncome * deltaTime;
 
-    // 🧾 Debug tick summary
     console.log(`💸 Tick income: ${formatNumber(totalIncome, { currency: '$' })} → Cash: ${formatNumber(gameState.cash, { currency: '$' })}`);
 
     updateStats();
 
-    // 🎲 Random events
     if (Math.random() < 0.0001 && gameState.events.length === 0) {
       generateRandomEvent();
     }
 
-    // 💾 Periodic save
     if (Math.random() < 0.01) {
       saveGame();
     }
   }, 100);
 
-  // 🔄 Secondary systems
   setInterval(() => {
     checkLevelUp();
     checkAchievements();
@@ -4058,6 +4058,7 @@ function startGameLoop() {
     processResearch();
   }, 5000);
 }
+
 
 
     function updateMarketConditions() {
