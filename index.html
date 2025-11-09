@@ -1601,16 +1601,21 @@
       }
     };
 
-    // Initialize all systems
-    function init() {
-      loadGame();
-      initializeAllSystems();
-      renderCityGrid();
-      renderCurrentTab();
-      startGameLoop();
-      startAdvancedSystems();
-      showWelcomeMessage();
-    }
+    // Enhanced initialization with error handling
+function init() {
+  safeExecute(() => {
+    loadGame();
+    setTimeout(() => {
+      updateStats();
+    }, 100);
+    initializeAllSystems();
+    renderCityGrid();
+    renderCurrentTab();
+    startGameLoop();
+    startAdvancedSystems();
+    showWelcomeMessage();
+  }, 'Failed to initialize game');
+}
 
     function initializeAllSystems() {
       initializeMarket();
@@ -4996,7 +5001,15 @@ function formatNumber(num, options = {}) {
       }
     }
 
+let gameLoaded = false;
+
 function loadGame() {
+  if (gameLoaded) {
+    console.warn("⏹ loadGame already called — skipping");
+    return;
+  }
+  gameLoaded = true;
+
   try {
     const saved = localStorage.getItem('ultimateBusinessEmpire');
     if (saved) {
@@ -5025,6 +5038,7 @@ function loadGame() {
     gameState.cash = 25000;
   }
 }
+
 
 
 
@@ -5881,27 +5895,6 @@ setInterval(() => {
       }, 'Failed to save game');
     }
 
-    // Enhanced initialization with error handling
-function init() {
-  safeExecute(() => {
-    // ✅ Load once
-    loadGame();
-
-    // ✅ Allow UI and systems to initialize after gameState is loaded
-    setTimeout(() => {
-      //initSystems();//
-      updateStats();
-    }, 100);
-
-    // 🚫 Removed duplicate loadGame()
-    initializeAllSystems();
-    renderCityGrid();
-    renderCurrentTab();
-    startGameLoop();
-    startAdvancedSystems();
-    showWelcomeMessage();
-  }, 'Failed to initialize game');
-}
 
 
     // Initialize the game when page loads
