@@ -4820,6 +4820,13 @@ function renderStockMarketOverview() {
 
    function updateIncome() {
   try {
+   
+   if (!Array.isArray(BUSINESS_TEMPLATES) || BUSINESS_TEMPLATES.length === 0) {
+  console.warn("⏳ BUSINESS_TEMPLATES not ready — retrying income update");
+  setTimeout(updateIncome, 500); // retry after 500ms
+  return;
+}
+
     // Check if required objects exist
     if (!gameState || !gameState.entities || !BUSINESS_TEMPLATES) {
       console.error('Required game data not initialized');
@@ -5835,14 +5842,21 @@ function loadGame() {
 setInterval(() => {
   const incomeText = document.getElementById('income').textContent;
   const cashEl = document.getElementById('cash');
-  let cashText = cashEl.textContent;
 
   let income = parseMoney(incomeText);
-  let cash = parseMoney(cashText);
+  if (isNaN(income)) income = 0;
 
-  cash += income;
-  cashEl.textContent = formatNumber(cash);
+  if (typeof gameState.cash !== 'number' || isNaN(gameState.cash)) {
+    gameState.cash = 0;
+  }
+
+  gameState.cash += income;
+
+  if (cashEl) {
+    cashEl.textContent = formatNumber(gameState.cash, { currency: '$' });
+  }
 }, 1000);
+
 
     // Enhanced error handling
     function safeExecute(func, errorMessage = 'An error occurred') {
