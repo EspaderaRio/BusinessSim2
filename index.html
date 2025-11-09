@@ -4949,25 +4949,20 @@
       }
     }
 
-   function loadGame() {
+  function loadGame() {
   try {
     const saved = localStorage.getItem('ultimateBusinessEmpire');
     if (saved) {
       const loadedState = JSON.parse(saved);
 
-      // Merge safely instead of overwriting gameState
-      Object.assign(gameState, loadedState);
+      // Ensure no NaN or missing critical values
+      if (isNaN(loadedState.cash) || loadedState.cash == null) {
+        loadedState.cash = 25000; // default safe value
+      }
 
-      // Reset transient values
+      gameState = { ...gameState, ...loadedState };
+
       gameState.lastTick = Date.now();
-
-      // ✅ Validate numeric fields to avoid NaN bugs
-      if (isNaN(gameState.cash) || typeof gameState.cash !== 'number') {
-        gameState.cash = 25000;
-      }
-      if (isNaN(gameState.income) || typeof gameState.income !== 'number') {
-        gameState.income = 0;
-      }
 
       // Calculate offline progress
       const offlineTime = Date.now() - (loadedState.lastTick || Date.now());
@@ -4975,10 +4970,19 @@
         calculateOfflineProgress(offlineTime);
       }
     }
+
+    // Final sanity check
+    if (isNaN(gameState.cash) || gameState.cash == null) {
+      gameState.cash = 25000;
+    }
+
+    console.log("✅ loadGame complete — cash =", gameState.cash);
   } catch (e) {
-    console.log('Could not load game state', e);
+    console.error('Could not load game state', e);
+    gameState.cash = 25000;
   }
 }
+
 
 
     function calculateOfflineProgress(offlineTime) {
