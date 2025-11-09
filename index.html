@@ -2062,7 +2062,7 @@ function renderStockMarketOverview() {
             <div class="card-badge">${trendIcon} ${((cryptoTrend - 1) * 100).toFixed(1)}%</div>
           </div>
           <div class="card-info">
-            ₿ Bitcoin: $${formatNumber(CRYPTOCURRENCIES[0].price)}<br>
+            ₿ Bitcoin: $${formatNumber(CRYPTOCURRENCIES[0].currentPrice)}<br>
             📊 Market Cap: $${formatNumber(Math.floor(Math.random() * 2000000000000))}<br>
             🔥 Fear & Greed: ${Math.floor(Math.random() * 100)}<br>
             ⚡ Network Hash: ${Math.floor(Math.random() * 200)} EH/s
