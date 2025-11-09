@@ -4019,7 +4019,7 @@ function showStockTrading(stockId) {
     window.playMiniGame = playMiniGame;
     window.closeModal = closeModal;
    
-    function renderCityGrid() {
+     function renderCityGrid() {
       const container = document.getElementById('city-grid');
       container.innerHTML = '';
       
@@ -4033,7 +4033,7 @@ function showStockTrading(stockId) {
         div.innerHTML = `
           <span class="city-emoji">${city.emoji}</span>
           <div>${city.name}</div>
-          ${!isUnlocked ? `<div style="font-size: 9px; color: #f56565;">Lv.${city.unlockLevel}</div>` : ''}
+          ${!isUnlocked ? `<div style="font-size: 10px; color: #f56565;">Lv.${city.unlockLevel}</div>` : ''}
           ${city.development > 0 ? `<div class="city-development">+${city.development}%</div>` : ''}
         `;
         
