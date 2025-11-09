@@ -1646,16 +1646,21 @@ function init() {
       };
       
       // Initialize stock prices with random fluctuations
+   // Initialize stock prices with volatility
       STOCK_COMPANIES.forEach(stock => {
-        stock.currentPrice = stock.price * (0.8 + Math.random() * 0.4);
-        stock.priceHistory = [stock.currentPrice];
-      });
-      
-      // Initialize crypto prices
+       const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
+       const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
+       stock.currentPrice = basePrice * (1 + (Math.random() - 0.5) * volatility);
+       stock.priceHistory = [stock.currentPrice];
+     });
+
+// Initialize crypto prices with volatility
       CRYPTOCURRENCIES.forEach(crypto => {
-        crypto.currentPrice = crypto.price * (0.5 + Math.random() * 1.0);
-        crypto.priceHistory = [crypto.currentPrice];
-      });
+       const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
+       const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
+       crypto.currentPrice = basePrice * (1 + (Math.random() - 0.5) * volatility);
+       crypto.priceHistory = [crypto.currentPrice];
+     });
     }
 
     function initializeWeather() {
