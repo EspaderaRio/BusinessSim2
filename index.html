@@ -1635,33 +1635,36 @@ function init() {
 
 
 
-    function initializeMarket() {
-      gameState.marketConditions = {
-        economy: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'boom' : 'recession') : 'stable',
-        techTrend: 0.8 + Math.random() * 0.4,
-        realEstateTrend: 0.8 + Math.random() * 0.4,
-        cryptoTrend: 0.5 + Math.random() * 1.0,
-        stockMarket: 0.9 + Math.random() * 0.2,
-        globalStability: 0.8 + Math.random() * 0.4
-      };
-      
-      // Initialize stock prices with random fluctuations
-   // Initialize stock prices with volatility
-      STOCK_COMPANIES.forEach(stock => {
-       const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
-       const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
-       stock.currentPrice = basePrice * (1 + (Math.random() - 0.5) * volatility);
-       stock.priceHistory = [stock.currentPrice];
-     });
+function initializeMarket() {
+  // 🌐 Set initial macroeconomic conditions
+  gameState.marketConditions = {
+    economy: Math.random() > 0.7 ? (Math.random() > 0.5 ? 'boom' : 'recession') : 'stable',
+    techTrend: 0.8 + Math.random() * 0.4,
+    realEstateTrend: 0.8 + Math.random() * 0.4,
+    cryptoTrend: 0.5 + Math.random() * 1.0,
+    stockMarket: 0.9 + Math.random() * 0.2,
+    globalStability: 0.8 + Math.random() * 0.4
+  };
 
-// Initialize crypto prices with volatility
-      CRYPTOCURRENCIES.forEach(crypto => {
-       const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
-       const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
-       crypto.currentPrice = basePrice * (1 + (Math.random() - 0.5) * volatility);
-       crypto.priceHistory = [crypto.currentPrice];
-     });
-    }
+  // 📊 Initialize stock prices with volatility
+  STOCK_COMPANIES.forEach(stock => {
+    const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
+    const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
+    const fluctuation = (Math.random() - 0.5) * volatility;
+    stock.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
+    stock.priceHistory = [stock.currentPrice];
+  });
+
+  // ₿ Initialize crypto prices with volatility
+  CRYPTOCURRENCIES.forEach(crypto => {
+    const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
+    const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
+    const fluctuation = (Math.random() - 0.5) * volatility;
+    crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
+    crypto.priceHistory = [crypto.currentPrice];
+  });
+}
+
 
     function initializeWeather() {
       const weatherTypes = ['sunny', 'rainy', 'cloudy', 'stormy', 'snowy'];
@@ -2899,80 +2902,89 @@ function renderStockMarketOverview() {
     }
 
     // Stock trading modal
-    function showStockTrading(stockId) {
-      const stock = STOCK_COMPANIES.find(s => s.id === stockId);
-      const owned = gameState.stocks.find(s => s.company_id === stockId);
-      const priceChange = stock.priceHistory.length > 1 ? 
-        ((stock.currentPrice - stock.priceHistory[stock.priceHistory.length - 2]) / stock.priceHistory[stock.priceHistory.length - 2] * 100) : 0;
+function showStockTrading(stockId) {
+  const stock = STOCK_COMPANIES.find(s => s.id === stockId);
+  const owned = gameState.stocks.find(s => s.company_id === stockId);
 
-      showModal(`📊 Trade ${stock.symbol}`, `
-        <div class="card-info">
-          <strong>Stock Information:</strong><br>
-          💰 Current Price: $${formatNumber(stock.currentPrice)}<br>
-          📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
-          📊 Sector: ${stock.sector}<br>
-          📉 Volatility: ${(stock.volatility * 100).toFixed(0)}%<br>
-          💼 You Own: ${owned ? owned.shares : 0} shares<br>
-          💰 Portfolio Value: $${owned ? formatNumber(owned.shares * stock.currentPrice) : '0'}<br><br>
-          
-          <strong>Quick Trade:</strong>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
-          <input type="number" id="trade-amount" placeholder="Shares" min="1" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <div style="display: flex; align-items: center; font-weight: bold;">
-            Total: $<span id="trade-total">0</span>
-          </div>
-        </div>
-        
-        <div class="card-actions">
-          <button class="btn btn-success" onclick="executeTrade('${stockId}', 'buy')">📈 Buy</button>
-          <button class="btn btn-danger" onclick="executeTrade('${stockId}', 'sell')" 
-            ${!owned || owned.shares === 0 ? 'disabled' : ''}>📉 Sell</button>
-          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        </div>
-      `);
-    }
+  const currentPrice = isFinite(stock?.currentPrice) ? stock.currentPrice : 0;
+  const previousPrice = stock?.priceHistory?.length > 1 ? stock.priceHistory[stock.priceHistory.length - 2] : currentPrice;
+  const priceChange = previousPrice > 0 ? ((currentPrice - previousPrice) / previousPrice * 100) : 0;
+  const volatility = isFinite(stock?.volatility) ? stock.volatility : 0.2;
+  const sharesOwned = owned?.shares || 0;
+  const portfolioValue = sharesOwned * currentPrice;
 
-    // Crypto trading modal
-    function showCryptoTrading(cryptoId) {
-      const crypto = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
-      const owned = gameState.crypto.find(c => c.crypto_id === cryptoId);
-      const priceChange = crypto.priceHistory.length > 1 ? 
-        ((crypto.currentPrice - crypto.priceHistory[crypto.priceHistory.length - 2]) / crypto.priceHistory[crypto.priceHistory.length - 2] * 100) : 0;
+  showModal(`📊 Trade ${stock?.symbol || 'Unknown'}`, `
+    <div class="card-info">
+      <strong>Stock Information:</strong><br>
+      💰 Current Price: $${formatNumber(currentPrice)}<br>
+      📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
+      📊 Sector: ${stock?.sector || 'N/A'}<br>
+      📉 Volatility: ${(volatility * 100).toFixed(0)}%<br>
+      💼 You Own: ${sharesOwned} shares<br>
+      💰 Portfolio Value: $${formatNumber(portfolioValue)}<br><br>
 
-      showModal(`₿ Trade ${crypto.symbol}`, `
-        <div class="card-info">
-          <strong>Crypto Information:</strong><br>
-          💰 Current Price: $${formatNumber(crypto.currentPrice)}<br>
-          📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
-          📊 Volatility: ${(crypto.volatility * 100).toFixed(0)}%<br>
-          💎 You Own: ${owned ? owned.amount.toFixed(4) : 0} ${crypto.symbol}<br>
-          💰 Portfolio Value: $${owned ? formatNumber(owned.amount * crypto.currentPrice) : '0'}<br>
-          🎯 Staked: ${owned && owned.staked ? 'Yes' : 'No'}<br><br>
-          
-          <strong>Quick Trade:</strong>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
-          <input type="number" id="crypto-trade-amount" placeholder="Amount" min="0.0001" step="0.0001" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <div style="display: flex; align-items: center; font-weight: bold;">
-            Total: $<span id="crypto-trade-total">0</span>
-          </div>
-        </div>
-        
-        <div class="card-actions">
-          <button class="btn btn-success" onclick="executeCryptoTrade('${cryptoId}', 'buy')">📈 Buy</button>
-          <button class="btn btn-danger" onclick="executeCryptoTrade('${cryptoId}', 'sell')" 
-            ${!owned || owned.amount === 0 ? 'disabled' : ''}>📉 Sell</button>
-          <button class="btn btn-primary" onclick="stakeCrypto('${cryptoId}'); closeModal();" 
-            ${!owned || owned.amount === 0 ? 'disabled' : ''}>
-            🎯 ${owned && owned.staked ? 'Unstake' : 'Stake'}
-          </button>
-          <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        </div>
-      `);
-    }
+      <strong>Quick Trade:</strong>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+      <input type="number" id="trade-amount" placeholder="Shares" min="1" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <div style="display: flex; align-items: center; font-weight: bold;">
+        Total: $<span id="trade-total">0</span>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-success" onclick="executeTrade('${stockId}', 'buy')">📈 Buy</button>
+      <button class="btn btn-danger" onclick="executeTrade('${stockId}', 'sell')" ${sharesOwned === 0 ? 'disabled' : ''}>📉 Sell</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
+
+  function showCryptoTrading(cryptoId) {
+  const crypto = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
+  const owned = gameState.crypto.find(c => c.crypto_id === cryptoId);
+
+  const currentPrice = isFinite(crypto?.currentPrice) ? crypto.currentPrice : 0;
+  const previousPrice = crypto?.priceHistory?.length > 1 ? crypto.priceHistory[crypto.priceHistory.length - 2] : currentPrice;
+  const priceChange = previousPrice > 0 ? ((currentPrice - previousPrice) / previousPrice * 100) : 0;
+  const volatility = isFinite(crypto?.volatility) ? crypto.volatility : 0.4;
+  const amountOwned = owned?.amount || 0;
+  const portfolioValue = amountOwned * currentPrice;
+  const staked = owned?.staked ? 'Yes' : 'No';
+
+  showModal(`₿ Trade ${crypto?.symbol || 'Unknown'}`, `
+    <div class="card-info">
+      <strong>Crypto Information:</strong><br>
+      💰 Current Price: $${formatNumber(currentPrice)}<br>
+      📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
+      📊 Volatility: ${(volatility * 100).toFixed(0)}%<br>
+      💎 You Own: ${amountOwned.toFixed(4)} ${crypto?.symbol}<br>
+      💰 Portfolio Value: $${formatNumber(portfolioValue)}<br>
+      🎯 Staked: ${staked}<br><br>
+
+      <strong>Quick Trade:</strong>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+      <input type="number" id="crypto-trade-amount" placeholder="Amount" min="0.0001" step="0.0001" style="padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <div style="display: flex; align-items: center; font-weight: bold;">
+        Total: $<span id="crypto-trade-total">0</span>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn btn-success" onclick="executeCryptoTrade('${cryptoId}', 'buy')">📈 Buy</button>
+      <button class="btn btn-danger" onclick="executeCryptoTrade('${cryptoId}', 'sell')" ${amountOwned === 0 ? 'disabled' : ''}>📉 Sell</button>
+      <button class="btn btn-primary" onclick="stakeCrypto('${cryptoId}'); closeModal();" ${amountOwned === 0 ? 'disabled' : ''}>
+        🎯 ${owned?.staked ? 'Unstake' : 'Stake'}
+      </button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+}
+
 
     // Execute trades
     function executeTrade(stockId, action) {
