@@ -4137,62 +4137,59 @@ function renderStockMarketOverview() {
       }
     }
 
-   function updateStats() {
-  // Ensure cash is always a number
-  if (isNaN(gameState.cash) || gameState.cash == null) gameState.cash = 0;
-
-  // Update cash & income
-  const cashValue = Math.floor(gameState.cash);
-  const incomeValue = Math.floor(gameState.income);
-  
-  document.getElementById('cash').textContent = formatNumber(gameState.cash, { currency: '$' });
-  document.getElementById('income').textContent = `${formatNumber(totalIncome, { currency: '$' })}/s`;
-
-
-  // Player stats
-  document.getElementById('player-level').textContent = gameState.playerLevel || 1;
-  document.getElementById('reputation').textContent = gameState.reputation || 0;
-
-  // Prestige
-  const prestigeIndicator = document.getElementById('prestige-level');
-  if (gameState.prestigeLevel > 0) {
-    prestigeIndicator.textContent = gameState.prestigeLevel;
-    prestigeIndicator.style.display = 'flex';
-  } else {
-    prestigeIndicator.style.display = 'none';
+function updateStats() {
+  // Ensure cash and income are valid numbers
+  if (typeof gameState.cash !== 'number' || isNaN(gameState.cash)) {
+    gameState.cash = 0;
+  }
+  if (typeof gameState.income !== 'number' || isNaN(gameState.income)) {
+    gameState.income = 0;
   }
 
-  // Counts
-  const businessCount = gameState.entities.filter(e => e.entity_type === 'business' && e.owner_type === 'player').length;
-  const propertyCount = gameState.properties.length;
-  const stockCount = gameState.stocks.length;
-  const staffCount = gameState.staff.length;
+  // Update cash and income display
+  const cashEl = document.getElementById('cash');
+  const incomeEl = document.getElementById('income');
+  if (cashEl) {
+    cashEl.textContent = formatNumber(gameState.cash, { currency: '$' });
+  }
+  if (incomeEl) {
+    incomeEl.textContent = `${formatNumber(gameState.income, { currency: '$' })}/s`;
+  }
 
-  document.getElementById('business-count').textContent = businessCount;
-  document.getElementById('property-count').textContent = propertyCount;
-  document.getElementById('stock-count').textContent = stockCount;
-  document.getElementById('staff-count').textContent = staffCount;
+  // Player stats
+  const levelEl = document.getElementById('player-level');
+  const repEl = document.getElementById('reputation');
+  if (levelEl) levelEl.textContent = gameState.playerLevel || 1;
+  if (repEl) repEl.textContent = gameState.reputation || 0;
 
-  // Total income from all sources
-  let totalIncome = 0;
-  gameState.entities.forEach(entity => {
-    if (entity.entity_type === 'business' && entity.owner_type === 'player') {
-      let income = entity.revenue_per_tick;
-      const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
-      assignedStaff.forEach(staff => {
-        const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
-        if (staffType) income *= (staffType.efficiency * staff.level * (staff.happiness / 100));
-      });
-      totalIncome += income;
+  // Prestige
+  const prestigeEl = document.getElementById('prestige-level');
+  if (prestigeEl) {
+    if (gameState.prestigeLevel > 0) {
+      prestigeEl.textContent = gameState.prestigeLevel;
+      prestigeEl.style.display = 'flex';
+    } else {
+      prestigeEl.style.display = 'none';
     }
-  });
+  }
 
-  gameState.properties.forEach(property => {
-    totalIncome += property.monthly_rent / (30 * 24 * 3600); // per second
-  });
+  // Entity counts
+  const businessCount = gameState.entities?.filter(e => e.entity_type === 'business' && e.owner_type === 'player').length || 0;
+  const propertyCount = gameState.properties?.length || 0;
+  const stockCount = gameState.stocks?.length || 0;
+  const staffCount = gameState.staff?.length || 0;
 
-  document.getElementById('income').textContent = `$${formatNumber(Math.floor(totalIncome))}/s`;
+  const bizEl = document.getElementById('business-count');
+  const propEl = document.getElementById('property-count');
+  const stockEl = document.getElementById('stock-count');
+  const staffEl = document.getElementById('staff-count');
+
+  if (bizEl) bizEl.textContent = businessCount;
+  if (propEl) propEl.textContent = propertyCount;
+  if (stockEl) stockEl.textContent = stockCount;
+  if (staffEl) staffEl.textContent = staffCount;
 }
+
 
 
     // Placeholder implementations for new features
