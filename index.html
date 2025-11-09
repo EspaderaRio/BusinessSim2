@@ -4915,26 +4915,30 @@
       `;
     }
 
-    function playMiniGame() {
-      const tapsElement = document.getElementById('taps-remaining');
-      let taps = parseInt(tapsElement.textContent);
-      
-      if (taps > 0) {
-        const earnings = Math.floor(gameState.cash * 0.01);
-        gameState.cash += earnings;
-        taps--;
-        tapsElement.textContent = taps;
-        
-        showToast(`+$${formatNumber(earnings)}`);
-        updateStats();
-        
-        if (taps === 0) {
-          setTimeout(() => {
-            tapsElement.textContent = '10';
-          }, 60000);
-        }
-      }
+   function playMiniGame() {
+  const tapsElement = document.getElementById('taps-remaining');
+  let taps = parseInt(tapsElement.textContent);
+
+  if (taps > 0) {
+    const earnings = Math.max(1, Math.floor(gameState.cash * 0.01)); // ✅ minimum $1
+    console.log("Cash before tap:", gameState.cash);
+    console.log("Earnings this tap:", earnings);
+
+    gameState.cash += earnings;
+    taps--;
+    tapsElement.textContent = taps;
+
+    showToast(`+$${formatNumber(earnings)}`);
+    updateStats();
+
+    if (taps === 0) {
+      setTimeout(() => {
+        tapsElement.textContent = '10';
+      }, 60000);
     }
+  }
+}
+
 
     // Save/Load system
     function saveGame() {
@@ -4945,24 +4949,37 @@
       }
     }
 
-    function loadGame() {
-      try {
-        const saved = localStorage.getItem('ultimateBusinessEmpire');
-        if (saved) {
-          const loadedState = JSON.parse(saved);
-          gameState = { ...gameState, ...loadedState };
-          gameState.lastTick = Date.now();
-          
-          // Calculate offline progress
-          const offlineTime = Date.now() - (loadedState.lastTick || Date.now());
-          if (offlineTime > 60000) {
-            calculateOfflineProgress(offlineTime);
-          }
-        }
-      } catch (e) {
-        console.log('Could not load game state');
+   function loadGame() {
+  try {
+    const saved = localStorage.getItem('ultimateBusinessEmpire');
+    if (saved) {
+      const loadedState = JSON.parse(saved);
+
+      // Merge safely instead of overwriting gameState
+      Object.assign(gameState, loadedState);
+
+      // Reset transient values
+      gameState.lastTick = Date.now();
+
+      // ✅ Validate numeric fields to avoid NaN bugs
+      if (isNaN(gameState.cash) || typeof gameState.cash !== 'number') {
+        gameState.cash = 25000;
+      }
+      if (isNaN(gameState.income) || typeof gameState.income !== 'number') {
+        gameState.income = 0;
+      }
+
+      // Calculate offline progress
+      const offlineTime = Date.now() - (loadedState.lastTick || Date.now());
+      if (offlineTime > 60000) {
+        calculateOfflineProgress(offlineTime);
       }
     }
+  } catch (e) {
+    console.log('Could not load game state', e);
+  }
+}
+
 
     function calculateOfflineProgress(offlineTime) {
       const offlineHours = offlineTime / (1000 * 60 * 60);
@@ -5785,30 +5802,6 @@
         };
         localStorage.setItem('ultimateBusinessEmpire', JSON.stringify(gameData));
       }, 'Failed to save game');
-    }
-
-    function loadGame() {
-      safeExecute(() => {
-        const saved = localStorage.getItem('ultimateBusinessEmpire');
-        if (saved) {
-          const loadedState = JSON.parse(saved);
-          
-          // Validate loaded data
-          if (loadedState.version && loadedState.cash !== undefined) {
-            gameState = { ...gameState, ...loadedState };
-            gameState.lastTick = Date.now();
-            
-            // Calculate offline progress
-            const offlineTime = Date.now() - (loadedState.lastTick || Date.now());
-            if (offlineTime > 60000) {
-              calculateOfflineProgress(offlineTime);
-            }
-            
-            return true;
-          }
-        }
-        return false;
-      }, 'Failed to load game');
     }
 
     // Enhanced initialization with error handling
