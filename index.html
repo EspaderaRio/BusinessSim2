@@ -2908,24 +2908,30 @@ function renderStockMarketOverview() {
       `);
     }
 
-    // Stock trading modal
 function showStockTrading(stockId) {
-  const stock = STOCK_COMPANIES.find(s => s.id === stockId);
+  const stock = STOCK_COMPANIES.find(s => s.symbol === stockId);
   const owned = gameState.stocks.find(s => s.company_id === stockId);
 
-  const currentPrice = isFinite(stock?.currentPrice) ? stock.currentPrice : 0;
-  const previousPrice = stock?.priceHistory?.length > 1 ? stock.priceHistory[stock.priceHistory.length - 2] : currentPrice;
+  if (!stock) {
+    console.warn(`⚠️ Stock not found for symbol: ${stockId}`);
+    showModal("Stock Not Found", `<p>Sorry, we couldn't find data for stock symbol: <strong>${stockId}</strong>.</p>`);
+    return;
+  }
+
+  const currentPrice = isFinite(stock.currentPrice) ? stock.currentPrice : 0;
+  const previousPrice = stock.priceHistory?.length > 1 ? stock.priceHistory[stock.priceHistory.length - 2] : currentPrice;
   const priceChange = previousPrice > 0 ? ((currentPrice - previousPrice) / previousPrice * 100) : 0;
-  const volatility = isFinite(stock?.volatility) ? stock.volatility : 0.2;
+  const changeColor = priceChange > 0 ? 'green' : priceChange < 0 ? 'red' : 'gray';
+  const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
   const sharesOwned = owned?.shares || 0;
   const portfolioValue = sharesOwned * currentPrice;
 
-  showModal(`📊 Trade ${stock?.symbol || 'Unknown'}`, `
+  showModal(`📊 Trade ${stock.symbol}`, `
     <div class="card-info">
       <strong>Stock Information:</strong><br>
       💰 Current Price: $${formatNumber(currentPrice)}<br>
-      📈 24h Change: ${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%<br>
-      📊 Sector: ${stock?.sector || 'N/A'}<br>
+      📈 24h Change: <span style="color:${changeColor};">${priceChange >= 0 ? '+' : ''}${priceChange.toFixed(2)}%</span><br>
+      📊 Sector: ${stock.sector || 'N/A'}<br>
       📉 Volatility: ${(volatility * 100).toFixed(0)}%<br>
       💼 You Own: ${sharesOwned} shares<br>
       💰 Portfolio Value: $${formatNumber(portfolioValue)}<br><br>
@@ -2949,8 +2955,9 @@ function showStockTrading(stockId) {
 }
 
 
+
   function showCryptoTrading(cryptoId) {
-  const crypto = CRYPTOCURRENCIES.find(c => c.id === cryptoId);
+  const crypto = CRYPTOCURRENCIES.find(c => s.symbol === cryptoId);
   const owned = gameState.crypto.find(c => c.crypto_id === cryptoId);
 
   const currentPrice = isFinite(crypto?.currentPrice) ? crypto.currentPrice : 0;
