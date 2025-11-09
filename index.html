@@ -4122,56 +4122,62 @@ function renderStockMarketOverview() {
       }
     }
 
-    function updateStats() {
-      document.getElementById('income').textContent = `$${formatNumber(gameState.income)}/s`;
+   function updateStats() {
+  // Ensure cash is always a number
+  if (isNaN(gameState.cash) || gameState.cash == null) gameState.cash = 0;
 
-      document.getElementById('cash').textContent = `$${formatNumber(Math.floor(gameState.cash))}`;
-      document.getElementById('player-level').textContent = gameState.playerLevel;
-      document.getElementById('reputation').textContent = gameState.reputation;
-      
-      // Show prestige level
-      const prestigeIndicator = document.getElementById('prestige-level');
-      if (gameState.prestigeLevel > 0) {
-        prestigeIndicator.textContent = gameState.prestigeLevel;
-        prestigeIndicator.style.display = 'flex';
-      } else {
-        prestigeIndicator.style.display = 'none';
-      }
-      
-      let totalIncome = 0;
-      let businessCount = gameState.entities.filter(e => e.entity_type === 'business' && e.owner_type === 'player').length;
-      let propertyCount = gameState.properties.length;
-      let stockCount = gameState.stocks.length;
-      let staffCount = gameState.staff.length;
-      
-      // Calculate total income from all sources
-      gameState.entities.forEach(entity => {
-        if (entity.entity_type === 'business' && entity.owner_type === 'player') {
-          let income = entity.revenue_per_tick;
-          
-          // Apply staff bonuses
-          const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
-          assignedStaff.forEach(staff => {
-            const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
-            income *= (staffType.efficiency * staff.level * (staff.happiness / 100));
-          });
-          
-          totalIncome += income;
-        }
+  // Update cash & income
+  const cashValue = Math.floor(gameState.cash);
+  const incomeValue = Math.floor(gameState.income);
+  
+  document.getElementById('cash').textContent = `$${formatNumber(cashValue)}`;
+  document.getElementById('income').textContent = `$${formatNumber(incomeValue)}/s`;
+
+  // Player stats
+  document.getElementById('player-level').textContent = gameState.playerLevel || 1;
+  document.getElementById('reputation').textContent = gameState.reputation || 0;
+
+  // Prestige
+  const prestigeIndicator = document.getElementById('prestige-level');
+  if (gameState.prestigeLevel > 0) {
+    prestigeIndicator.textContent = gameState.prestigeLevel;
+    prestigeIndicator.style.display = 'flex';
+  } else {
+    prestigeIndicator.style.display = 'none';
+  }
+
+  // Counts
+  const businessCount = gameState.entities.filter(e => e.entity_type === 'business' && e.owner_type === 'player').length;
+  const propertyCount = gameState.properties.length;
+  const stockCount = gameState.stocks.length;
+  const staffCount = gameState.staff.length;
+
+  document.getElementById('business-count').textContent = businessCount;
+  document.getElementById('property-count').textContent = propertyCount;
+  document.getElementById('stock-count').textContent = stockCount;
+  document.getElementById('staff-count').textContent = staffCount;
+
+  // Total income from all sources
+  let totalIncome = 0;
+  gameState.entities.forEach(entity => {
+    if (entity.entity_type === 'business' && entity.owner_type === 'player') {
+      let income = entity.revenue_per_tick;
+      const assignedStaff = gameState.staff.filter(s => s.assigned_business === entity.id);
+      assignedStaff.forEach(staff => {
+        const staffType = STAFF_TYPES.find(t => t.id === staff.staff_type);
+        if (staffType) income *= (staffType.efficiency * staff.level * (staff.happiness / 100));
       });
-      
-      // Add property income
-      gameState.properties.forEach(property => {
-        totalIncome += property.monthly_rent / (30 * 24 * 3600);
-      });
-      
-      document.getElementById('income').textContent = `$${formatNumber(Math.floor(totalIncome))}/s`;
-      document.getElementById('business-count').textContent = businessCount;
-      document.getElementById('property-count').textContent = propertyCount;
-      document.getElementById('stock-count').textContent = stockCount;
-      document.getElementById('staff-count').textContent = staffCount;
+      totalIncome += income;
     }
-   
+  });
+
+  gameState.properties.forEach(property => {
+    totalIncome += property.monthly_rent / (30 * 24 * 3600); // per second
+  });
+
+  document.getElementById('income').textContent = `$${formatNumber(Math.floor(totalIncome))}/s`;
+}
+
 
     // Placeholder implementations for new features
     function renderAvailableBusinesses() {
