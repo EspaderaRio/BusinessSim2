@@ -1673,7 +1673,7 @@ CRYPTOCURRENCIES.forEach(crypto => {
   const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
   const fluctuation = (Math.random() - 0.5) * volatility;
 
-  // ✅ First assign currentPrice
+  // ✅ Set currentPrice first
   crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
 
   // ✅ Then calculate priceChange safely
@@ -1685,6 +1685,7 @@ CRYPTOCURRENCIES.forEach(crypto => {
     : 0;
 
   crypto.priceHistory = [crypto.currentPrice];
+  crypto.priceChange = priceChange; // Optional: store for UI
 });
 }
 
