@@ -1526,7 +1526,6 @@
     // Enhanced game state with all new features
     let gameState = {
       cash: 25000,
-      income: 0,
       startTime: Date.now(),
       lastTick: Date.now(),
       currentCity: 'newyork',
@@ -4836,10 +4835,12 @@ function renderStockMarketOverview() {
     gameState.income = owned.reduce((sum, biz) => {
       if (!biz || !biz.business_type) return sum;
       
-      const type = BUSINESS_TEMPLATES.find(t => t && t.id === biz.business_type);
-      const revenue = type && typeof type.baseRevenue === 'number' ? type.baseRevenue : 0;
-      return sum + revenue;
-    }, 0);
+     const type = BUSINESS_TEMPLATES.find(t => t && t.id === biz.business_type);
+  console.log(`🔍 Matching template for ${biz.business_type}:`, type);
+
+  const revenue = type && typeof type.baseRevenue === 'number' ? type.baseRevenue : 0;
+  return sum + revenue;
+}, 0);
     
     // Update DOM element if it exists
     const incomeElement = document.getElementById('income');
@@ -4855,6 +4856,9 @@ function renderStockMarketOverview() {
   } catch (error) {
     console.error('Error updating income:', error);
   }
+    console.log("📦 All entities:", gameState.entities);
+console.log("🏢 Owned businesses:", owned);
+
 }
     // Enhanced helper functions
 function formatNumber(num, options = {}) {
