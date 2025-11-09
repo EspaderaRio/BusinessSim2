@@ -1648,27 +1648,44 @@ function initializeMarket() {
 
   // 📊 Initialize stock prices with volatility
   STOCK_COMPANIES.forEach(stock => {
-    const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
-    const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
-    const fluctuation = (Math.random() - 0.5) * volatility;
-    const previousPrice = stock.priceHistory?.length > 1 ? stock.priceHistory[stock.priceHistory.length - 2] : stock.currentPrice;
-    const priceChange = previousPrice > 0 ? ((stock.currentPrice - previousPrice) / previousPrice * 100) : 0;
+  const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
+  const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
+  const fluctuation = (Math.random() - 0.5) * volatility;
 
-    stock.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
-    stock.priceHistory = [stock.currentPrice];
-  });
+  // ✅ Set currentPrice first
+  stock.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
+
+  // ✅ Then calculate priceChange using the new currentPrice
+  const previousPrice = stock.priceHistory?.length > 1
+    ? stock.priceHistory[stock.priceHistory.length - 2]
+    : stock.currentPrice;
+  const priceChange = previousPrice > 0
+    ? ((stock.currentPrice - previousPrice) / previousPrice * 100)
+    : 0;
+
+  stock.priceHistory = [stock.currentPrice];
+});
+
 
   // ₿ Initialize crypto prices with volatility
-  CRYPTOCURRENCIES.forEach(crypto => {
-    const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
-    const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
-    const fluctuation = (Math.random() - 0.5) * volatility;
-    const previousPrice = crypto.priceHistory?.length > 1 ? crypto.priceHistory[crypto.priceHistory.length - 2] : crypto.currentPrice;
-    const priceChange = previousPrice > 0 ? ((crypto.currentPrice - previousPrice) / previousPrice * 100) : 0;
+CRYPTOCURRENCIES.forEach(crypto => {
+  const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
+  const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
+  const fluctuation = (Math.random() - 0.5) * volatility;
 
-    crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
-    crypto.priceHistory = [crypto.currentPrice];
-  });
+  // ✅ First assign currentPrice
+  crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
+
+  // ✅ Then calculate priceChange safely
+  const previousPrice = crypto.priceHistory?.length > 1
+    ? crypto.priceHistory[crypto.priceHistory.length - 2]
+    : crypto.currentPrice;
+  const priceChange = previousPrice > 0
+    ? ((crypto.currentPrice - previousPrice) / previousPrice * 100)
+    : 0;
+
+  crypto.priceHistory = [crypto.currentPrice];
+});
 }
 
 
@@ -4041,7 +4058,7 @@ function startGameLoop() {
 
     // 📊 Stock dividends
     gameState.stocks.forEach(stock => {
-      const company = STOCK_COMPANIES.find(c => c.id === stock.company_id);
+     const company = STOCK_COMPANIES.find(c => c.symbol === stock.company_id);
       if (company && isFinite(stock.shares) && isFinite(company.currentPrice)) {
         const dividend = stock.shares * company.currentPrice * 0.0001;
         totalIncome += dividend / (24 * 3600);
