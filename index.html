@@ -1997,25 +1997,44 @@
       `;
     }
 
-    function renderStockMarketOverview() {
-      const marketTrend = gameState.marketConditions.stockMarket;
-      const trendIcon = marketTrend > 1.02 ? '📈' : marketTrend < 0.98 ? '📉' : '➡️';
-      
-      return `
-        <div class="stock-card">
-          <div class="card-header">
-            <div class="card-title">📊 Stock Market Overview</div>
-            <div class="card-badge">${trendIcon} ${((marketTrend - 1) * 100).toFixed(1)}%</div>
-          </div>
-          <div class="card-info">
-            📈 S&P 500: ${(4500 * marketTrend).toFixed(0)}<br>
-            🌍 Global Index: ${(3200 * marketTrend).toFixed(0)}<br>
-            💹 Volume: ${formatNumber(Math.floor(Math.random() * 1000000000))}<br>
-            ⚡ Volatility: ${(Math.random() * 30 + 10).toFixed(1)}%
-          </div>
-        </div>
-      `;
-    }
+function renderStockMarketOverview() {
+  const marketTrend = gameState.marketConditions.stockMarket;
+  const trendIcon = marketTrend > 1.02 ? '📈' : marketTrend < 0.98 ? '📉' : '➡️';
+
+  // Apply small dynamic variation to each stock price
+  STOCK_COMPANIES.forEach(stock => {
+    const change = (Math.random() - 0.5) * stock.volatility;
+    stock.price = Math.max(1, stock.price * (1 + change * marketTrend));
+  });
+
+  // Build list of all stocks
+  const stockList = STOCK_COMPANIES.map(stock => `
+    <div class="stock-row">
+      <span>${stock.symbol}</span>
+      <span>$${formatNumber(stock.price.toFixed(2))}</span>
+    </div>
+  `).join('');
+
+  return `
+    <div class="stock-card">
+      <div class="card-header">
+        <div class="card-title">📊 Stock Market Overview</div>
+        <div class="card-badge">${trendIcon} ${((marketTrend - 1) * 100).toFixed(1)}%</div>
+      </div>
+      <div class="card-info">
+        📈 S&P 500: ${(4500 * marketTrend).toFixed(0)}<br>
+        🌍 Global Index: ${(3200 * marketTrend).toFixed(0)}<br>
+        💹 Volume: ${formatNumber(Math.floor(Math.random() * 1000000000))}<br>
+        ⚡ Volatility: ${(Math.random() * 30 + 10).toFixed(1)}%
+      </div>
+      <div class="stock-list">
+        <h4>Top Companies</h4>
+        ${stockList}
+      </div>
+    </div>
+  `;
+}
+
 
     function renderTradingInterface() {
       return `
@@ -2043,7 +2062,7 @@
             <div class="card-badge">${trendIcon} ${((cryptoTrend - 1) * 100).toFixed(1)}%</div>
           </div>
           <div class="card-info">
-            ₿ Bitcoin: $${formatNumber(CRYPTOCURRENCIES[0].currentPrice)}<br>
+            ₿ Bitcoin: $${formatNumber(CRYPTOCURRENCIES[0].price)}<br>
             📊 Market Cap: $${formatNumber(Math.floor(Math.random() * 2000000000000))}<br>
             🔥 Fear & Greed: ${Math.floor(Math.random() * 100)}<br>
             ⚡ Network Hash: ${Math.floor(Math.random() * 200)} EH/s
