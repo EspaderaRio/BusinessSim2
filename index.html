@@ -4991,6 +4991,18 @@ function formatNumber(num, options = {}) {
   }
 }
 
+   function sanitizeSaveData() {
+  const saved = localStorage.getItem('ultimateBusinessEmpire');
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (typeof parsed.cash !== 'number' || isNaN(parsed.cash) || parsed.cash <= 0) {
+      parsed.cash = 25000;
+      localStorage.setItem('ultimateBusinessEmpire', JSON.stringify(parsed));
+      console.warn("🧹 Cleaned corrupted save data");
+    }
+  }
+}
+
 
     // Save/Load system
     function saveGame() {
@@ -5015,7 +5027,9 @@ function loadGame() {
     if (saved) {
       const loadedState = JSON.parse(saved);
 
-      if (isNaN(loadedState.cash) || loadedState.cash == null) {
+      // Sanitize corrupted or missing cash value
+      if (typeof loadedState.cash !== 'number' || isNaN(loadedState.cash) || loadedState.cash <= 0) {
+        console.warn("⚠️ Corrupted cash value detected — resetting to default");
         loadedState.cash = 25000;
       }
 
@@ -5028,7 +5042,8 @@ function loadGame() {
       }
     }
 
-    if (isNaN(gameState.cash) || gameState.cash == null) {
+    // Final fallback
+    if (typeof gameState.cash !== 'number' || isNaN(gameState.cash) || gameState.cash <= 0) {
       gameState.cash = 25000;
     }
 
@@ -5038,6 +5053,7 @@ function loadGame() {
     gameState.cash = 25000;
   }
 }
+
 
 
 
