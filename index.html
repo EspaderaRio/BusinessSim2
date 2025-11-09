@@ -3959,6 +3959,15 @@ function renderStockMarketOverview() {
         const deltaTime = (now - gameState.lastTick) / 1000;
         gameState.lastTick = now;
 
+           // ✅ Ensure substructures exist
+       if (!gameState || !gameState.entities) return;
+       gameState.staff ??= [];
+       gameState.weather ??= { effect: 1 };
+       gameState.properties ??= [];
+       gameState.stocks ??= [];
+       gameState.crypto ??= [];
+       gameState.events ??= [];
+
         let totalIncome = 0;
         
         // Business income
@@ -4010,8 +4019,11 @@ function renderStockMarketOverview() {
           }
         });
 
+        gameState.income = totalIncome;
         gameState.cash += totalIncome * deltaTime;
         gameState.totalEarnings += totalIncome * deltaTime;
+
+        console.log(`💸 Tick income: ${formatNumber(totalIncome, { currency: '$' })} → Cash: ${formatNumber(gameState.cash, { currency: '$' })}`);
         updateStats();
         
         // Random events
@@ -4134,8 +4146,9 @@ function renderStockMarketOverview() {
   const cashValue = Math.floor(gameState.cash);
   const incomeValue = Math.floor(gameState.income);
   
-  document.getElementById('cash').textContent = `$${formatNumber(cashValue)}`;
-  document.getElementById('income').textContent = `$${formatNumber(incomeValue)}/s`;
+  document.getElementById('cash').textContent = formatNumber(gameState.cash, { currency: '$' });
+  document.getElementById('income').textContent = `${formatNumber(totalIncome, { currency: '$' })}/s`;
+
 
   // Player stats
   document.getElementById('player-level').textContent = gameState.playerLevel || 1;
@@ -4844,8 +4857,10 @@ function renderStockMarketOverview() {
     );
     
     // Calculate income with error checking
-    gameState.income = owned.reduce((sum, biz) => {
-      if (!biz || !biz.business_type) return sum;
+   gameState.income = owned.reduce((sum, biz) => {
+  return sum + (typeof biz.revenue_per_tick === 'number' ? biz.revenue_per_tick : 0);
+}, 0);
+
       
      const type = BUSINESS_TEMPLATES.find(t => t && t.id === biz.business_type);
   console.log(`🔍 Matching template for ${biz.business_type}:`, type);
@@ -5869,23 +5884,6 @@ function loadGame() {
 
 
 
-setInterval(() => {
-  const incomeText = document.getElementById('income').textContent;
-  const cashEl = document.getElementById('cash');
-
-  let income = parseMoney(incomeText);
-  if (isNaN(income)) income = 0;
-
-  if (typeof gameState.cash !== 'number' || isNaN(gameState.cash)) {
-    gameState.cash = 0;
-  }
-
-  gameState.cash += income;
-
-  if (cashEl) {
-    cashEl.textContent = formatNumber(gameState.cash, { currency: '$' });
-  }
-}, 1000);
 
 
     // Enhanced error handling
