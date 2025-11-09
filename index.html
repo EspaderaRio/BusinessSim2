@@ -1651,6 +1651,9 @@ function initializeMarket() {
     const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
     const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
     const fluctuation = (Math.random() - 0.5) * volatility;
+    const previousPrice = stock.priceHistory?.length > 1 ? stock.priceHistory[stock.priceHistory.length - 2] : stock.currentPrice;
+    const priceChange = previousPrice > 0 ? ((stock.currentPrice - previousPrice) / previousPrice * 100) : 0;
+
     stock.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
     stock.priceHistory = [stock.currentPrice];
   });
@@ -1660,10 +1663,14 @@ function initializeMarket() {
     const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
     const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
     const fluctuation = (Math.random() - 0.5) * volatility;
+    const previousPrice = crypto.priceHistory?.length > 1 ? crypto.priceHistory[crypto.priceHistory.length - 2] : crypto.currentPrice;
+    const priceChange = previousPrice > 0 ? ((crypto.currentPrice - previousPrice) / previousPrice * 100) : 0;
+
     crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
     crypto.priceHistory = [crypto.currentPrice];
   });
 }
+
 
 
     function initializeWeather() {
