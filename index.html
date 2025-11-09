@@ -1605,9 +1605,7 @@
 function init() {
   safeExecute(() => {
     loadGame();
-    setTimeout(() => {
-      updateStats();
-    }, 100);
+    setTimeout(() => updateStats(), 100);
     initializeAllSystems();
     renderCityGrid();
     renderCurrentTab();
@@ -1616,6 +1614,7 @@ function init() {
     showWelcomeMessage();
   }, 'Failed to initialize game');
 }
+
 
     function initializeAllSystems() {
       initializeMarket();
