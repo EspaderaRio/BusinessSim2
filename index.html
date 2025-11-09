@@ -1604,6 +1604,9 @@
     // Enhanced initialization with error handling
 function init() {
   safeExecute(() => {
+    initializeMarket();       
+    validateAssets();         
+    logAssetHealth();         
     loadGame();
     setTimeout(() => updateStats(), 100);
     initializeAllSystems();
@@ -1634,7 +1637,6 @@ function init() {
    
 
 
-
 function initializeMarket() {
   // 🌐 Set initial macroeconomic conditions
   gameState.marketConditions = {
@@ -1648,47 +1650,92 @@ function initializeMarket() {
 
   // 📊 Initialize stock prices with volatility
   STOCK_COMPANIES.forEach(stock => {
-  const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
-  const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
-  const fluctuation = (Math.random() - 0.5) * volatility;
+    const basePrice = isFinite(stock.price) && stock.price > 0 ? stock.price : 100;
+    const volatility = isFinite(stock.volatility) ? stock.volatility : 0.2;
+    const fluctuation = (Math.random() - 0.5) * volatility;
 
-  // ✅ Set currentPrice first
-  stock.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
+    stock.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
 
-  // ✅ Then calculate priceChange using the new currentPrice
-  const previousPrice = stock.priceHistory?.length > 1
-    ? stock.priceHistory[stock.priceHistory.length - 2]
-    : stock.currentPrice;
-  const priceChange = previousPrice > 0
-    ? ((stock.currentPrice - previousPrice) / previousPrice * 100)
-    : 0;
+    const previousPrice = stock.priceHistory?.length > 1
+      ? stock.priceHistory[stock.priceHistory.length - 2]
+      : stock.currentPrice;
+    const priceChange = previousPrice > 0
+      ? ((stock.currentPrice - previousPrice) / previousPrice * 100)
+      : 0;
 
-  stock.priceHistory = [stock.currentPrice];
-});
-
+    stock.priceHistory = [stock.currentPrice];
+    stock.priceChange = priceChange;
+  });
 
   // ₿ Initialize crypto prices with volatility
-CRYPTOCURRENCIES.forEach(crypto => {
-  const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
-  const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
-  const fluctuation = (Math.random() - 0.5) * volatility;
+  CRYPTOCURRENCIES.forEach(crypto => {
+    const basePrice = isFinite(crypto.price) && crypto.price > 0 ? crypto.price : 50;
+    const volatility = isFinite(crypto.volatility) ? crypto.volatility : 0.4;
+    const fluctuation = (Math.random() - 0.5) * volatility;
 
-  // ✅ Set currentPrice first
-  crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
+    crypto.currentPrice = Math.max(1, basePrice * (1 + fluctuation));
 
-  // ✅ Then calculate priceChange safely
-  const previousPrice = crypto.priceHistory?.length > 1
-    ? crypto.priceHistory[crypto.priceHistory.length - 2]
-    : crypto.currentPrice;
-  const priceChange = previousPrice > 0
-    ? ((crypto.currentPrice - previousPrice) / previousPrice * 100)
-    : 0;
+    const previousPrice = crypto.priceHistory?.length > 1
+      ? crypto.priceHistory[crypto.priceHistory.length - 2]
+      : crypto.currentPrice;
+    const priceChange = previousPrice > 0
+      ? ((crypto.currentPrice - previousPrice) / previousPrice * 100)
+      : 0;
 
-  crypto.priceHistory = [crypto.currentPrice];
-  crypto.priceChange = priceChange; // Optional: store for UI
-});
+    crypto.priceHistory = [crypto.currentPrice];
+    crypto.priceChange = priceChange;
+  });
 }
 
+function validateAssets() {
+  STOCK_COMPANIES.forEach(stock => {
+    if (!isFinite(stock.currentPrice)) {
+      stock.currentPrice = isFinite(stock.price) ? stock.price : 100;
+    }
+    if (!Array.isArray(stock.priceHistory)) {
+      stock.priceHistory = [stock.currentPrice];
+    }
+  });
+
+  CRYPTOCURRENCIES.forEach(crypto => {
+    if (!isFinite(crypto.currentPrice)) {
+      crypto.currentPrice = isFinite(crypto.price) ? crypto.price : 50;
+    }
+    if (!Array.isArray(crypto.priceHistory)) {
+      crypto.priceHistory = [crypto.currentPrice];
+    }
+  });
+}
+
+   function logAssetHealth() {
+  console.group("📋 Asset Health Check");
+
+  STOCK_COMPANIES.forEach(stock => {
+    const issues = [];
+    if (!isFinite(stock.currentPrice)) issues.push("❌ currentPrice is invalid");
+    if (!Array.isArray(stock.priceHistory)) issues.push("❌ priceHistory is missing");
+    if (!isFinite(stock.volatility)) issues.push("❌ volatility is invalid");
+    if (!isFinite(stock.price)) issues.push("❌ base price is invalid");
+
+    if (issues.length > 0) {
+      console.warn(`⚠️ [${stock.symbol}] ${stock.name}:`, ...issues);
+    }
+  });
+
+  CRYPTOCURRENCIES.forEach(crypto => {
+    const issues = [];
+    if (!isFinite(crypto.currentPrice)) issues.push("❌ currentPrice is invalid");
+    if (!Array.isArray(crypto.priceHistory)) issues.push("❌ priceHistory is missing");
+    if (!isFinite(crypto.volatility)) issues.push("❌ volatility is invalid");
+    if (!isFinite(crypto.price)) issues.push("❌ base price is invalid");
+
+    if (issues.length > 0) {
+      console.warn(`⚠️ [${crypto.symbol}] ${crypto.name}:`, ...issues);
+    }
+  });
+
+  console.groupEnd();
+}
 
 
     function initializeWeather() {
